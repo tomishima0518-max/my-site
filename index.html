@@ -3,174 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>スペシャル完全版MAXサイト</title>
+<title>スペシャル完全版サイト🔥</title>
 <style>
-  /* 全ページ共通設定 */
-  body { margin:0; font-family:'Arial',sans-serif; overflow-x:hidden; transition:background 1s; }
-  .page { width:100vw; height:100vh; display:none; position:relative; padding:20px; box-sizing:border-box; }
-  .active { display:block; }
-  
-  /* ページ番号表示 */
-  .page-number { position:fixed; bottom:10px; right:10px; font-weight:bold; font-size:16px; }
+  /* -------------------- 基本デザイン -------------------- */
+  body { margin:0; font-family:'Arial',sans-serif; background: linear-gradient(120deg, #ff4d4d, #fff); overflow-x:hidden; }
+  h1,h2,h3,h4,h5,h6 { margin:0; padding:0; }
+  a { text-decoration:none; color:#000; }
+  .container { width:90%; max-width:1200px; margin:0 auto; padding:20px; }
 
-  /* 光るボタン */
-  .btn { padding:12px 24px; margin:10px; border:none; border-radius:8px; cursor:pointer; font-size:16px; transition:0.3s; box-shadow:0 0 5px #fff; }
-  .btn:hover { box-shadow:0 0 20px #ff0, 0 0 40px #f0f, 0 0 60px #0ff; transform:scale(1.05); }
+  /* -------------------- ページ切替タブ -------------------- */
+  .tabs { display:flex; justify-content:center; margin-bottom:20px; gap:10px; }
+  .tab-btn { padding:10px 20px; font-size:16px; border:none; cursor:pointer; border-radius:8px; background:#fff; transition:0.3s; box-shadow:0 0 5px #000; }
+  .tab-btn.active, .tab-btn:hover { background:#ff6666; color:#fff; box-shadow:0 0 15px #ff0000; }
 
-  /* ページ切替矢印 */
-  .arrow { position:fixed; top:50%; font-size:48px; cursor:pointer; color:#fff; text-shadow:0 0 10px #000; user-select:none; }
-  .left { left:20px; }
-  .right { right:20px; }
+  /* -------------------- ページコンテンツ -------------------- */
+  .page { display:none; animation:fadeIn 0.5s ease-in-out; }
+  .page.active { display:block; }
 
-  /* 吹き出し */
-  .speech { position:absolute; max-width:200px; padding:10px; background:#fff; border-radius:10px; box-shadow:0 0 10px #000; animation:float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 
-  /* ゲージ */
-  .gauge-container { width:80%; height:20px; background:#222; border-radius:10px; margin:10px 0; overflow:hidden; }
-  .gauge { height:100%; background:lime; width:0%; transition:width 0.2s; }
+  /* -------------------- 光るボタン -------------------- */
+  .glow-btn { padding:12px 25px; background:#ff4d4d; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:bold; box-shadow:0 0 10px #ff6666,0 0 20px #ff3333; transition:0.3s; }
+  .glow-btn:hover { box-shadow:0 0 20px #ff9999,0 0 30px #ff4d4d; transform:scale(1.05); }
 
-  /* 爆発エフェクト */
-  .explosion { position:absolute; border-radius:50%; background:orange; opacity:0.7; pointer-events:none; animation:explode 0.6s forwards; }
-  @keyframes explode { 0%{transform:scale(0); opacity:1;}100%{transform:scale(3); opacity:0;} }
+  /* -------------------- 吹き出しアニメ -------------------- */
+  .bubble { display:inline-block; background:#fff; border-radius:15px; padding:10px 15px; margin:10px 0; position:relative; animation:bubbleAnim 2s ease-in-out infinite; }
+  .bubble:after { content:""; position:absolute; bottom:-10px; left:20px; border-width:10px 10px 0; border-style:solid; border-color:#fff transparent transparent transparent; }
+  @keyframes bubbleAnim { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
 
-  /* 音ON/OFF表示 */
-  .sound-toggle { position:fixed; top:10px; right:10px; cursor:pointer; color:#fff; font-size:20px; }
+  /* -------------------- ページメーター -------------------- */
+  .page-meter { text-align:center; margin:10px 0; font-weight:bold; font-size:18px; color:#333; }
+
+  /* -------------------- ゲージ -------------------- */
+  .gauge-container { width:100%; background:#ddd; border-radius:10px; overflow:hidden; margin:10px 0; }
+  .gauge { height:25px; width:0%; background:#4CAF50; transition:width 0.5s; text-align:center; color:#fff; font-weight:bold; line-height:25px; }
 </style>
 </head>
 <body>
+<div class="container">
 
-<!-- ページ切替矢印 -->
-<div class="arrow left">&#9664;</div>
-<div class="arrow right">&#9654;</div>
-
-<!-- ページ番号 -->
-<div class="page-number" id="pageNumber">1/5ページ目</div>
-
-<!-- ページ1 -->
-<div class="page active" id="page1" style="background:linear-gradient(to bottom, #ff0000, #ffffff);">
-  <div class="speech" style="top:50px; left:50px;">📖 ここを押すとページがめくれるよ！</div>
-  <button class="btn" onclick="playSound('pageTurn')">📖ページをめくる</button>
-</div>
-
-<!-- ページ2 -->
-<div class="page" id="page2" style="background:linear-gradient(to bottom, #ff8800, #ffffff);">
-  <div class="speech" style="top:80px; left:100px;">🎵 音も再生できる！</div>
-  <button class="btn" onclick="playSound('buttonClick')">🔊ボタン音</button>
-</div>
-
-<!-- ページ3 -->
-<div class="page" id="page3" style="background:linear-gradient(to bottom, #ffff00, #ffffff);">
-  <div class="speech" style="top:50px; left:200px;">📊 登録者ゲージ</div>
-  <div class="gauge-container">
-    <div class="gauge" id="subGauge"></div>
+  <h1>🔥スペシャル完全版サイト🔥</h1>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="page1">📖トップ</button>
+    <button class="tab-btn" data-tab="page2">📊ゲージ</button>
+    <button class="tab-btn" data-tab="page3">🎬動画</button>
   </div>
-  <div id="subText">0/1000</div>
+
+  <!-- -------------------- ページ1: トップ -------------------- -->
+  <div class="page active" id="page1">
+    <h2>📖 ようこそ！</h2>
+    <p class="bubble">このサイトは全ステップ詰め込み版！最新動画・ゲージ・爆発エフェクト・音もあるよ🔥</p>
+    <button class="glow-btn" onclick="playSound('flip')">📖ページめくり</button>
+  </div>
+
+  <!-- -------------------- ページ2: ゲージ -------------------- -->
+  <div class="page" id="page2">
+    <h2>📊 チャンネル登録者数メーター</h2>
+    <div class="gauge-container">
+      <div class="gauge" id="subscriberGauge">0</div>
+    </div>
+    <h2>⏱ 自動更新ゲージ (20秒)</h2>
+    <div class="gauge-container">
+      <div class="gauge" id="autoGauge">0</div>
+    </div>
+    <div id="autoGaugeTime">0.00/20秒</div>
+  </div>
+
+  <!-- -------------------- ページ3: 動画 -------------------- -->
+  <div class="page" id="page3">
+    <h2>🎬 最新動画</h2>
+    <div id="latestVideo">読み込み中...</div>
+  </div>
+
+  <div class="page-meter" id="pageMeter">1/3ページ目</div>
+
 </div>
 
-<!-- ページ4 -->
-<div class="page" id="page4" style="background:linear-gradient(to bottom, #00ff00, #ffffff);">
-  <div class="speech" style="top:100px; left:50px;">🎥 最新動画はこちら</div>
-  <iframe id="latestVideo" width="560" height="315" src="" frameborder="0" allowfullscreen></iframe>
-</div>
-
-<!-- ページ5 -->
-<div class="page" id="page5" style="background:linear-gradient(to bottom, #00ffff, #ffffff);">
-  <div class="speech" style="top:50px; left:50px;">🔍 動画検索バー</div>
-  <input type="text" id="searchInput" placeholder="検索キーワード">
-  <button class="btn" onclick="searchVideo()">検索</button>
-  <div id="searchResult"></div>
-</div>
-
-<!-- 音 -->
-<audio id="pageTurn" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
-<audio id="buttonClick" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+<!-- -------------------- サウンド -------------------- -->
+<audio id="flip" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
 
 <script>
-  // ページ切替
-  let currentPage = 1;
-  const totalPages = 5;
+  // -------------------- ページ切替 --------------------
+  const tabs = document.querySelectorAll('.tab-btn');
   const pages = document.querySelectorAll('.page');
-  const pageNumber = document.getElementById('pageNumber');
+  const pageMeter = document.getElementById('pageMeter');
 
-  function showPage(n) {
-    pages.forEach(p => p.classList.remove('active'));
-    document.getElementById('page'+n).classList.add('active');
-    pageNumber.textContent = n+'/'+totalPages+'ページ目';
-  }
-
-  document.querySelector('.arrow.left').addEventListener('click',()=>{
-    currentPage = (currentPage-1<1)? totalPages : currentPage-1;
-    showPage(currentPage);
-  });
-  document.querySelector('.arrow.right').addEventListener('click',()=>{
-    currentPage = (currentPage+1>totalPages)? 1 : currentPage+1;
-    showPage(currentPage);
+  tabs.forEach((tab,index)=>{
+    tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      pages.forEach(p=>p.classList.remove('active'));
+      pages[index].classList.add('active');
+      pageMeter.textContent = (index+1)+"/"+pages.length+"ページ目";
+    });
   });
 
-  function playSound(id){document.getElementById(id).play();createExplosion();}
+  // -------------------- サウンド --------------------
+  function playSound(id){ document.getElementById(id).play(); }
 
-  function createExplosion(){
-    const e=document.createElement('div');e.classList.add('explosion');
-    e.style.left=Math.random()*window.innerWidth+'px';
-    e.style.top=Math.random()*window.innerHeight+'px';
-    e.style.width='30px';e.style.height='30px';
-    document.body.appendChild(e);
-    setTimeout(()=>document.body.removeChild(e),600);
-  }
-
-  // APIキーとチャンネルID
+  // -------------------- APIキーとチャンネルID --------------------
   const API_KEY = 'AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es';
   const CHANNEL_ID = 'UCmZY34Ev1I5FIcDC5tdXeDg';
 
-  // 登録者数ゲージ更新
-  const subGauge = document.getElementById('subGauge');
-  const subText = document.getElementById('subText');
-  const subTarget = 1000; // 目標
-  let subCurrent = 0;
+  // -------------------- ゲージ更新 --------------------
+  const subscriberGauge = document.getElementById('subscriberGauge');
+  const autoGauge = document.getElementById('autoGauge');
+  const autoGaugeTime = document.getElementById('autoGaugeTime');
+  let autoTime=0;
 
   async function fetchSubscribers(){
     try{
       const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
       const data = await res.json();
-      subCurrent = parseInt(data.items[0].statistics.subscriberCount);
-      let percent = Math.min(subCurrent/subTarget*100,100);
-      subGauge.style.width = percent+'%';
-      subText.textContent = `${subCurrent}/${subTarget}`;
-    }catch(err){console.error(err);}
+      if(data.items && data.items.length>0){
+        const subs = parseInt(data.items[0].statistics.subscriberCount);
+        subscriberGauge.style.width = Math.min(subs/140*100,100)+'%';
+        subscriberGauge.textContent = subs+"人";
+      }
+    }catch(e){console.error(e);}
   }
   fetchSubscribers();
-  setInterval(fetchSubscribers,20000); //20秒ごと
+  setInterval(fetchSubscribers,20000);
 
-  // 最新動画埋め込み
+  // -------------------- 自動更新ゲージ --------------------
+  setInterval(()=>{
+    autoTime+=0.01;
+    if(autoTime>20) autoTime=0;
+    const pct = (autoTime/20)*100;
+    autoGauge.style.width = pct+'%';
+    autoGauge.textContent = '🟩'.repeat(Math.round(pct/10))+'⬛'.repeat(10-Math.round(pct/10));
+    autoGaugeTime.textContent = autoTime.toFixed(2)+"/20秒";
+  },10);
+
+  // -------------------- 最新動画表示 --------------------
   async function fetchLatestVideo(){
     try{
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=1`);
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=1&type=video`);
       const data = await res.json();
-      const videoId = data.items[0].id.videoId;
-      document.getElementById('latestVideo').src=`https://www.youtube.com/embed/${videoId}?autoplay=0`;
-    }catch(err){console.error(err);}
+      if(data.items && data.items.length>0){
+        const vid = data.items[0].id.videoId;
+        document.getElementById('latestVideo').innerHTML=`<iframe width="560" height="315" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
+      }
+    }catch(e){console.error(e);}
   }
   fetchLatestVideo();
-  setInterval(fetchLatestVideo,60000); //60秒ごと
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スペシャル完全版サイト🔥</title>
+<style>
+  /* -------------------- 基本デザイン -------------------- */
+  body { margin:0; font-family:'Arial',sans-serif; background: linear-gradient(120deg, #ff4d4d, #fff); overflow-x:hidden; }
+  h1,h2,h3,h4,h5,h6 { margin:0; padding:0; }
+  a { text-decoration:none; color:#000; }
+  .container { width:90%; max-width:1200px; margin:0 auto; padding:20px; }
 
-  // 検索
-  async function searchVideo(){
-    const keyword = document.getElementById('searchInput').value;
-    if(!keyword) return;
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&type=video&q=${encodeURIComponent(keyword)}&maxResults=5`);
-    const data = await res.json();
-    const resultDiv = document.getElementById('searchResult');
-    resultDiv.innerHTML='';
-    data.items.forEach(item=>{
-      const a = document.createElement('a');
-      a.href=`https://www.youtube.com/watch?v=${item.id.videoId}`;
-      a.textContent = item.snippet.title;
-      a.target='_blank';
-      resultDiv.appendChild(a);
-      resultDiv.appendChild(document.createElement('br'));
+  /* -------------------- ページ切替タブ -------------------- */
+  .tabs { display:flex; justify-content:center; margin-bottom:20px; gap:10px; }
+  .tab-btn { padding:10px 20px; font-size:16px; border:none; cursor:pointer; border-radius:8px; background:#fff; transition:0.3s; box-shadow:0 0 5px #000; }
+  .tab-btn.active, .tab-btn:hover { background:#ff6666; color:#fff; box-shadow:0 0 15px #ff0000; }
+
+  /* -------------------- ページコンテンツ -------------------- */
+  .page { display:none; animation:fadeIn 0.5s ease-in-out; }
+  .page.active { display:block; }
+
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+  /* -------------------- 光るボタン -------------------- */
+  .glow-btn { padding:12px 25px; background:#ff4d4d; color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:bold; box-shadow:0 0 10px #ff6666,0 0 20px #ff3333; transition:0.3s; }
+  .glow-btn:hover { box-shadow:0 0 20px #ff9999,0 0 30px #ff4d4d; transform:scale(1.05); }
+
+  /* -------------------- 吹き出しアニメ -------------------- */
+  .bubble { display:inline-block; background:#fff; border-radius:15px; padding:10px 15px; margin:10px 0; position:relative; animation:bubbleAnim 2s ease-in-out infinite; }
+  .bubble:after { content:""; position:absolute; bottom:-10px; left:20px; border-width:10px 10px 0; border-style:solid; border-color:#fff transparent transparent transparent; }
+  @keyframes bubbleAnim { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+
+  /* -------------------- ページメーター -------------------- */
+  .page-meter { text-align:center; margin:10px 0; font-weight:bold; font-size:18px; color:#333; }
+
+  /* -------------------- ゲージ -------------------- */
+  .gauge-container { width:100%; background:#ddd; border-radius:10px; overflow:hidden; margin:10px 0; }
+  .gauge { height:25px; width:0%; background:#4CAF50; transition:width 0.5s; text-align:center; color:#fff; font-weight:bold; line-height:25px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🔥スペシャル完全版サイト🔥</h1>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="page1">📖トップ</button>
+    <button class="tab-btn" data-tab="page2">📊ゲージ</button>
+    <button class="tab-btn" data-tab="page3">🎬動画</button>
+  </div>
+
+  <!-- -------------------- ページ1: トップ -------------------- -->
+  <div class="page active" id="page1">
+    <h2>📖 ようこそ！</h2>
+    <p class="bubble">このサイトは全ステップ詰め込み版！最新動画・ゲージ・爆発エフェクト・音もあるよ🔥</p>
+    <button class="glow-btn" onclick="playSound('flip')">📖ページめくり</button>
+  </div>
+
+  <!-- -------------------- ページ2: ゲージ -------------------- -->
+  <div class="page" id="page2">
+    <h2>📊 チャンネル登録者数メーター</h2>
+    <div class="gauge-container">
+      <div class="gauge" id="subscriberGauge">0</div>
+    </div>
+    <h2>⏱ 自動更新ゲージ (20秒)</h2>
+    <div class="gauge-container">
+      <div class="gauge" id="autoGauge">0</div>
+    </div>
+    <div id="autoGaugeTime">0.00/20秒</div>
+  </div>
+
+  <!-- -------------------- ページ3: 動画 -------------------- -->
+  <div class="page" id="page3">
+    <h2>🎬 最新動画</h2>
+    <div id="latestVideo">読み込み中...</div>
+  </div>
+
+  <div class="page-meter" id="pageMeter">1/3ページ目</div>
+
+</div>
+
+<!-- -------------------- サウンド -------------------- -->
+<audio id="flip" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+
+<script>
+  // -------------------- ページ切替 --------------------
+  const tabs = document.querySelectorAll('.tab-btn');
+  const pages = document.querySelectorAll('.page');
+  const pageMeter = document.getElementById('pageMeter');
+
+  tabs.forEach((tab,index)=>{
+    tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      pages.forEach(p=>p.classList.remove('active'));
+      pages[index].classList.add('active');
+      pageMeter.textContent = (index+1)+"/"+pages.length+"ページ目";
     });
+  });
+
+  // -------------------- サウンド --------------------
+  function playSound(id){ document.getElementById(id).play(); }
+
+  // -------------------- APIキーとチャンネルID --------------------
+  const API_KEY = 'AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es';
+  const CHANNEL_ID = 'UCmZY34Ev1I5FIcDC5tdXeDg';
+
+  // -------------------- ゲージ更新 --------------------
+  const subscriberGauge = document.getElementById('subscriberGauge');
+  const autoGauge = document.getElementById('autoGauge');
+  const autoGaugeTime = document.getElementById('autoGaugeTime');
+  let autoTime=0;
+
+  async function fetchSubscribers(){
+    try{
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+      const data = await res.json();
+      if(data.items && data.items.length>0){
+        const subs = parseInt(data.items[0].statistics.subscriberCount);
+        subscriberGauge.style.width = Math.min(subs/140*100,100)+'%';
+        subscriberGauge.textContent = subs+"人";
+      }
+    }catch(e){console.error(e);}
   }
+  fetchSubscribers();
+  setInterval(fetchSubscribers,20000);
+
+  // -------------------- 自動更新ゲージ --------------------
+  setInterval(()=>{
+    autoTime+=0.01;
+    if(autoTime>20) autoTime=0;
+    const pct = (autoTime/20)*100;
+    autoGauge.style.width = pct+'%';
+    autoGauge.textContent = '🟩'.repeat(Math.round(pct/10))+'⬛'.repeat(10-Math.round(pct/10));
+    autoGaugeTime.textContent = autoTime.toFixed(2)+"/20秒";
+  },10);
+
+  // -------------------- 最新動画表示 --------------------
+  async function fetchLatestVideo(){
+    try{
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=1&type=video`);
+      const data = await res.json();
+      if(data.items && data.items.length>0){
+        const vid = data.items[0].id.videoId;
+        document.getElementById('latestVideo').innerHTML=`<iframe width="560" height="315" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
+      }
+    }catch(e){console.error(e);}
+  }
+  fetchLatestVideo();
 </script>
 </body>
 </html>
