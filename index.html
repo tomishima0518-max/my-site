@@ -1,45 +1,91 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube 登録者数ゲージ</title>
-  <style>
-    #subBar {
-      width: 0;
-      height: 30px;
-      background-color: #4caf50;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私のサイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            margin: 0;
+            padding: 0;
+            color: white;
+        }
+        header {
+            text-align: center;
+            padding: 50px 0;
+            font-size: 2em;
+        }
+        .container {
+            text-align: center;
+            margin: 20px;
+        }
+        .link-button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .link-button:hover {
+            background-color: #45a049;
+        }
+        #subBar {
+            height: 20px;
+            background-color: #ddd;
+            width: 0;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        #subCount {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>YouTube チャンネル 登録者数ゲージ</h1>
-  <div id="subBar"></div>
-  <p id="subCount">取得中...</p>
+    <header>
+        私のサイトへようこそ！
+    </header>
 
-  <script>
-    const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";  // APIキーをここに
-    const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";  // チャンネルID
-    const GOAL = 1000;  // 目標数
+    <div class="container">
+        <p>ここではYouTubeチャンネルの登録者数を表示します</p>
 
-    function fetchSubscribers() {
-      fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`)
-        .then(res => res.json())
-        .then(data => {
-          const subs = Number(data.items[0].statistics.subscriberCount);
-          const percent = Math.min((subs / GOAL) * 100, 100);
-          
-          document.getElementById("subBar").style.width = percent + "%";
-          document.getElementById("subCount").textContent = `現在 ${subs.toLocaleString()} 人 / 目標 ${GOAL} 人`;
-        })
-        .catch(err => {
-          document.getElementById("subCount").textContent = "取得エラー";
-          console.error(err);
-        });
-    }
+        <div id="subBar"></div>
+        <div id="subCount">現在 0 人 / 目標 1000 人</div>
 
-    // 毎秒更新
-    setInterval(fetchSubscribers, 1000); // 1000ms = 1秒ごとに更新
-  </script>
+        <a href="https://tomishima0518-max.github.io/my-site/" class="link-button" target="_blank">▶ 私のサイトはこちら</a>
+        <br>
+        <a href="https://www.youtube.com/@%E3%83%AA%E3%83%A5%E3%82%A6%E3%83%86%E3%83%B3%E3%81%AEGame%E5%AE%9F%E6%B3%81" class="link-button" target="_blank">▶ リュウテンのGame実況チャンネルはこちら</a>
+    </div>
+
+    <script>
+        const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
+        const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
+        const GOAL = 1000;
+
+        function fetchSubscribers() {
+            fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`)
+                .then(res => res.json())
+                .then(data => {
+                    const subs = Number(data.items[0].statistics.subscriberCount);
+                    const percent = Math.min((subs / GOAL) * 100, 100);
+                    
+                    document.getElementById("subBar").style.width = percent + "%";
+                    document.getElementById("subCount").textContent = `現在 ${subs.toLocaleString()} 人 / 目標 ${GOAL} 人`;
+                })
+                .catch(err => {
+                    document.getElementById("subCount").textContent = "取得エラー";
+                    console.error(err);
+                });
+        }
+
+        // 5分ごとにデータを更新
+        setInterval(fetchSubscribers, 300000);
+        fetchSubscribers(); // 最初にデータを取得
+    </script>
 </body>
 </html>
