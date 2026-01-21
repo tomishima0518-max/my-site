@@ -2,19 +2,30 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>リュウテンサイト🔥</title>
+<title>🔥 リュウテンスペシャルサイト 🔥</title>
 <style>
+  /* --- 背景アニメ --- */
   body {
     margin:0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #ff4d4d, #ffffff);
+    background: linear-gradient(135deg, #ff4d4d, #ffffff, #ffcc00, #66ccff);
+    background-size: 400% 400%;
+    animation: bgAnimate 20s ease infinite;
     color:#222;
     text-align:center;
   }
-  h1 {
-    font-size:2em;
-    margin-top:1em;
+
+  @keyframes bgAnimate {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
   }
+
+  h1, h2 { margin:0.5em; }
+  h1 { font-size:2.2em; }
+  h2 { font-size:1.6em; }
+
+  /* --- ボタン --- */
   .link-btn {
     display:inline-block;
     margin:0.5em;
@@ -22,26 +33,29 @@
     background:#ff4d4d;
     color:white;
     font-weight:bold;
-    border-radius:10px;
+    border-radius:12px;
     text-decoration:none;
     transition:0.3s;
   }
-  .link-btn:hover { background:#e60000; }
+  .link-btn:hover { background:#e60000; transform:scale(1.05); }
 
+  /* --- 登録者バー --- */
   #subscriber-container {
     width:80%;
     max-width:500px;
     background:#eee;
-    border-radius:20px;
+    border-radius:25px;
     margin:1em auto;
     padding:10px;
     position:relative;
+    overflow:hidden;
   }
   #subscriber-bar {
-    height:30px;
-    background:#ff4d4d;
-    border-radius:20px;
+    height:35px;
+    background: linear-gradient(270deg, #ff4d4d, #ff9999, #ff4d4d);
+    border-radius:25px;
     width:0%;
+    animation: barGlow 2s linear infinite;
     transition:1s;
   }
   #subscriber-text {
@@ -49,18 +63,43 @@
     width:100%;
     top:0;
     left:0;
-    line-height:30px;
+    line-height:35px;
     font-weight:bold;
+    color:#fff;
+    text-shadow: 1px 1px 2px #000;
+  }
+  @keyframes barGlow {
+    0%{filter: brightness(1);}
+    50%{filter: brightness(1.5);}
+    100%{filter: brightness(1);}
   }
 
+  /* --- 最新動画 --- */
   #latestVideo {
     margin-top:2em;
+  }
+  iframe {
+    border-radius:12px;
+    max-width:90%;
+  }
+
+  /* --- 紹介文 --- */
+  #description {
+    margin:2em auto;
+    width:90%;
+    max-width:700px;
+    background:rgba(255,255,255,0.8);
+    border-radius:15px;
+    padding:1em;
+    text-align:left;
+    line-height:1.5em;
+    font-size:1.1em;
   }
 </style>
 </head>
 <body>
 
-<h1>🔥 リュウテンのGame実況サイト 🔥</h1>
+<h1>🔥 リュウテンスペシャルサイト 🔥</h1>
 
 <a class="link-btn" href="https://tomishima0518-max.github.io/my-site/" target="_blank">▶ 私のサイトはこちら</a>
 <a class="link-btn" href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">▶ チャンネルはこちら</a>
@@ -70,27 +109,36 @@
   <div id="subscriber-text">登録者: 0</div>
 </div>
 
+<div id="description">
+  🎮 ここはリュウテンのGame実況専用サイトです！<br>
+  新しい動画は下で自動表示🔥<br>
+  登録者数もリアルタイムでチェックできます💡<br>
+  最新の情報を見逃さないように毎秒更新しています⏱
+</div>
+
 <h2>🎥 最新動画はこちら</h2>
 <div id="latestVideo"></div>
 
 <script>
-  // ★ここに最初から入れてる★
-  const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es"; 
-  const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg"; 
+  // --- APIキー・チャンネルID ---
+  const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
+  const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
   const TARGET = 140;
 
+  // --- 登録者バー更新 ---
   async function fetchSubscribers() {
     try {
       const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
       const data = await res.json();
       const subs = parseInt(data.items[0].statistics.subscriberCount);
       let widthPercent = Math.min(subs / TARGET * 100, 100);
-      if(subs > TARGET) widthPercent = Math.min((subs/TARGET)*120,200); // 目標超えたら1.2倍
+      if(subs > TARGET) widthPercent = Math.min((subs/TARGET)*120,200);
       document.getElementById("subscriber-bar").style.width = widthPercent + "%";
       document.getElementById("subscriber-text").innerText = `登録者: ${subs}`;
     } catch(err){ console.error(err); }
   }
 
+  // --- 最新動画取得 ---
   async function fetchLatestVideo() {
     try {
       const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=1`);
@@ -106,9 +154,171 @@
   fetchSubscribers();
   fetchLatestVideo();
 
-  // 更新頻度：毎秒
-  setInterval(fetchSubscribers, 1000); 
-  setInterval(fetchLatestVideo, 1000); 
+  // --- 更新インターバル ---
+  setInterval(fetchSubscribers, 1000);
+  setInterval(fetchLatestVideo, 1000);
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>🔥 リュウテンスペシャルサイト 🔥</title>
+<style>
+  /* --- 背景アニメ --- */
+  body {
+    margin:0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff4d4d, #ffffff, #ffcc00, #66ccff);
+    background-size: 400% 400%;
+    animation: bgAnimate 20s ease infinite;
+    color:#222;
+    text-align:center;
+  }
+
+  @keyframes bgAnimate {
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+
+  h1, h2 { margin:0.5em; }
+  h1 { font-size:2.2em; }
+  h2 { font-size:1.6em; }
+
+  /* --- ボタン --- */
+  .link-btn {
+    display:inline-block;
+    margin:0.5em;
+    padding:0.8em 1.5em;
+    background:#ff4d4d;
+    color:white;
+    font-weight:bold;
+    border-radius:12px;
+    text-decoration:none;
+    transition:0.3s;
+  }
+  .link-btn:hover { background:#e60000; transform:scale(1.05); }
+
+  /* --- 登録者バー --- */
+  #subscriber-container {
+    width:80%;
+    max-width:500px;
+    background:#eee;
+    border-radius:25px;
+    margin:1em auto;
+    padding:10px;
+    position:relative;
+    overflow:hidden;
+  }
+  #subscriber-bar {
+    height:35px;
+    background: linear-gradient(270deg, #ff4d4d, #ff9999, #ff4d4d);
+    border-radius:25px;
+    width:0%;
+    animation: barGlow 2s linear infinite;
+    transition:1s;
+  }
+  #subscriber-text {
+    position:absolute;
+    width:100%;
+    top:0;
+    left:0;
+    line-height:35px;
+    font-weight:bold;
+    color:#fff;
+    text-shadow: 1px 1px 2px #000;
+  }
+  @keyframes barGlow {
+    0%{filter: brightness(1);}
+    50%{filter: brightness(1.5);}
+    100%{filter: brightness(1);}
+  }
+
+  /* --- 最新動画 --- */
+  #latestVideo {
+    margin-top:2em;
+  }
+  iframe {
+    border-radius:12px;
+    max-width:90%;
+  }
+
+  /* --- 紹介文 --- */
+  #description {
+    margin:2em auto;
+    width:90%;
+    max-width:700px;
+    background:rgba(255,255,255,0.8);
+    border-radius:15px;
+    padding:1em;
+    text-align:left;
+    line-height:1.5em;
+    font-size:1.1em;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔥 リュウテンスペシャルサイト 🔥</h1>
+
+<a class="link-btn" href="https://tomishima0518-max.github.io/my-site/" target="_blank">▶ 私のサイトはこちら</a>
+<a class="link-btn" href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">▶ チャンネルはこちら</a>
+
+<div id="subscriber-container">
+  <div id="subscriber-bar"></div>
+  <div id="subscriber-text">登録者: 0</div>
+</div>
+
+<div id="description">
+  🎮 ここはリュウテンのGame実況専用サイトです！<br>
+  新しい動画は下で自動表示🔥<br>
+  登録者数もリアルタイムでチェックできます💡<br>
+  最新の情報を見逃さないように毎秒更新しています⏱
+</div>
+
+<h2>🎥 最新動画はこちら</h2>
+<div id="latestVideo"></div>
+
+<script>
+  // --- APIキー・チャンネルID ---
+  const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
+  const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
+  const TARGET = 140;
+
+  // --- 登録者バー更新 ---
+  async function fetchSubscribers() {
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+      const data = await res.json();
+      const subs = parseInt(data.items[0].statistics.subscriberCount);
+      let widthPercent = Math.min(subs / TARGET * 100, 100);
+      if(subs > TARGET) widthPercent = Math.min((subs/TARGET)*120,200);
+      document.getElementById("subscriber-bar").style.width = widthPercent + "%";
+      document.getElementById("subscriber-text").innerText = `登録者: ${subs}`;
+    } catch(err){ console.error(err); }
+  }
+
+  // --- 最新動画取得 ---
+  async function fetchLatestVideo() {
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=1`);
+      const data = await res.json();
+      if(data.items && data.items.length > 0){
+        const video = data.items[0];
+        const embed = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${video.id.videoId}" frameborder="0" allowfullscreen></iframe>`;
+        document.getElementById("latestVideo").innerHTML = embed;
+      }
+    } catch(err){ console.error(err); }
+  }
+
+  fetchSubscribers();
+  fetchLatestVideo();
+
+  // --- 更新インターバル ---
+  setInterval(fetchSubscribers, 1000);
+  setInterval(fetchLatestVideo, 1000);
 </script>
 
 </body>
