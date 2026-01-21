@@ -2,260 +2,114 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My YouTube Status</title>
-
-<!-- フォント -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-
+<title>リュウテンサイト🔥</title>
 <style>
   body {
-    margin: 0;
-    font-family: 'Orbitron', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin:0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff4d4d, #ffffff);
+    color:#222;
+    text-align:center;
   }
-
-  .card {
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(10px);
-    padding: 24px;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: 0 0 25px rgba(0,255,255,0.25);
-  }
-
   h1 {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1.4em;
+    font-size:2em;
+    margin-top:1em;
+  }
+  .link-btn {
+    display:inline-block;
+    margin:0.5em;
+    padding:0.8em 1.5em;
+    background:#ff4d4d;
+    color:white;
+    font-weight:bold;
+    border-radius:10px;
+    text-decoration:none;
+    transition:0.3s;
+  }
+  .link-btn:hover { background:#e60000; }
+
+  #subscriber-container {
+    width:80%;
+    max-width:500px;
+    background:#eee;
+    border-radius:20px;
+    margin:1em auto;
+    padding:10px;
+    position:relative;
+  }
+  #subscriber-bar {
+    height:30px;
+    background:#ff4d4d;
+    border-radius:20px;
+    width:0%;
+    transition:1s;
+  }
+  #subscriber-text {
+    position:absolute;
+    width:100%;
+    top:0;
+    left:0;
+    line-height:30px;
+    font-weight:bold;
   }
 
-  .status {
-    text-align: center;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-    opacity: 0.9;
-  }
-
-  /* 更新中アニメーション */
-  .loading::after {
-    content: "⏳";
-    animation: spin 1s linear infinite;
-    display: inline-block;
-    margin-left: 6px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* ゲージ */
-  .bar-bg {
-    background: #111;
-    border-radius: 999px;
-    overflow: hidden;
-    height: 22px;
-    margin-top: 10px;
-  }
-
-  .bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00f260, #0575e6);
-    box-shadow: 0 0 15px #00f260;
-    transition: width 1s ease;
-  }
-
-  .count {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 1em;
+  #latestVideo {
+    margin-top:2em;
   }
 </style>
 </head>
-
 <body>
-  <div class="card">
-    <h1>📊 YouTube 登録者数</h1>
-    <div id="status" class="status loading">更新中</div>
 
-    <div class="bar-bg">
-      <div id="subBar" class="bar"></div>
-    </div>
+<h1>🔥 リュウテンのGame実況サイト 🔥</h1>
 
-    <div id="subCount" class="count">--</div>
-  </div>
+<a class="link-btn" href="https://tomishima0518-max.github.io/my-site/" target="_blank">▶ 私のサイトはこちら</a>
+<a class="link-btn" href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">▶ チャンネルはこちら</a>
+
+<div id="subscriber-container">
+  <div id="subscriber-bar"></div>
+  <div id="subscriber-text">登録者: 0</div>
+</div>
+
+<h2>🎥 最新動画はこちら</h2>
+<div id="latestVideo"></div>
 
 <script>
-const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
-const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
-const GOAL = 1000;
+  // ★ここに最初から入れてる★
+  const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es"; 
+  const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg"; 
+  const TARGET = 140;
 
-async function fetchSubscribers() {
-  document.getElementById("status").classList.add("loading");
-  document.getElementById("status").textContent = "更新中";
-
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`
-    );
-    const data = await res.json();
-
-    const subs = Number(data.items[0].statistics.subscriberCount);
-    const percent = Math.min((subs / GOAL) * 100, 100);
-
-    document.getElementById("subBar").style.width = percent + "%";
-    document.getElementById("subCount").textContent =
-      `現在 ${subs.toLocaleString()} 人 / 目標 ${GOAL} 人`;
-
-    document.getElementById("status").textContent = "更新完了 ✅";
-    document.getElementById("status").classList.remove("loading");
-
-  } catch (e) {
-    document.getElementById("status").textContent = "取得エラー ❌";
+  async function fetchSubscribers() {
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+      const data = await res.json();
+      const subs = parseInt(data.items[0].statistics.subscriberCount);
+      let widthPercent = Math.min(subs / TARGET * 100, 100);
+      if(subs > TARGET) widthPercent = Math.min((subs/TARGET)*120,200); // 目標超えたら1.2倍
+      document.getElementById("subscriber-bar").style.width = widthPercent + "%";
+      document.getElementById("subscriber-text").innerText = `登録者: ${subs}`;
+    } catch(err){ console.error(err); }
   }
-}
 
-// 初回 + 30秒ごと更新
-fetchSubscribers();
-setInterval(fetchSubscribers, 30000);
+  async function fetchLatestVideo() {
+    try {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=1`);
+      const data = await res.json();
+      if(data.items && data.items.length > 0){
+        const video = data.items[0];
+        const embed = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${video.id.videoId}" frameborder="0" allowfullscreen></iframe>`;
+        document.getElementById("latestVideo").innerHTML = embed;
+      }
+    } catch(err){ console.error(err); }
+  }
+
+  fetchSubscribers();
+  fetchLatestVideo();
+
+  // 更新頻度：毎秒
+  setInterval(fetchSubscribers, 1000); 
+  setInterval(fetchLatestVideo, 1000); 
 </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My YouTube Status</title>
 
-<!-- フォント -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-  body {
-    margin: 0;
-    font-family: 'Orbitron', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .card {
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(10px);
-    padding: 24px;
-    border-radius: 16px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: 0 0 25px rgba(0,255,255,0.25);
-  }
-
-  h1 {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1.4em;
-  }
-
-  .status {
-    text-align: center;
-    font-size: 0.9em;
-    margin-bottom: 10px;
-    opacity: 0.9;
-  }
-
-  /* 更新中アニメーション */
-  .loading::after {
-    content: "⏳";
-    animation: spin 1s linear infinite;
-    display: inline-block;
-    margin-left: 6px;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* ゲージ */
-  .bar-bg {
-    background: #111;
-    border-radius: 999px;
-    overflow: hidden;
-    height: 22px;
-    margin-top: 10px;
-  }
-
-  .bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00f260, #0575e6);
-    box-shadow: 0 0 15px #00f260;
-    transition: width 1s ease;
-  }
-
-  .count {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 1em;
-  }
-</style>
-</head>
-
-<body>
-  <div class="card">
-    <h1>📊 YouTube 登録者数</h1>
-    <div id="status" class="status loading">更新中</div>
-
-    <div class="bar-bg">
-      <div id="subBar" class="bar"></div>
-    </div>
-
-    <div id="subCount" class="count">--</div>
-  </div>
-
-<script>
-const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
-const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
-const GOAL = 1000;
-
-async function fetchSubscribers() {
-  document.getElementById("status").classList.add("loading");
-  document.getElementById("status").textContent = "更新中";
-
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`
-    );
-    const data = await res.json();
-
-    const subs = Number(data.items[0].statistics.subscriberCount);
-    const percent = Math.min((subs / GOAL) * 100, 100);
-
-    document.getElementById("subBar").style.width = percent + "%";
-    document.getElementById("subCount").textContent =
-      `現在 ${subs.toLocaleString()} 人 / 目標 ${GOAL} 人`;
-
-    document.getElementById("status").textContent = "更新完了 ✅";
-    document.getElementById("status").classList.remove("loading");
-
-  } catch (e) {
-    document.getElementById("status").textContent = "取得エラー ❌";
-  }
-}
-
-// 初回 + 30秒ごと更新
-fetchSubscribers();
-setInterval(fetchSubscribers, 30000);
-</script>
 </body>
 </html>
