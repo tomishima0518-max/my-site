@@ -1,108 +1,98 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>リュウテンのGame実況｜公式サイト</title>
-
+  <title>リュウテンのGame実況</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #ff0000, #ffffff);
+      background: linear-gradient(135deg, #ff2a2a, #ffffff);
       color: #111;
       text-align: center;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 80px auto;
-      background: rgba(255,255,255,0.9);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      min-height: 100vh;
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin-top: 60px;
+      font-size: 36px;
     }
 
-    .count {
-      font-size: 48px;
-      font-weight: bold;
-      margin: 20px 0;
+    .card {
+      background: rgba(255,255,255,0.9);
+      max-width: 420px;
+      margin: 40px auto;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
 
     .bar-bg {
       width: 100%;
-      height: 26px;
+      height: 28px;
       background: #ddd;
-      border-radius: 13px;
+      border-radius: 20px;
       overflow: hidden;
+      margin-top: 15px;
     }
 
     .bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #ff0000, #ff9900);
-      transition: width 1s ease;
+      background: linear-gradient(90deg, #ff0000, #ff7b7b);
+      transition: width 1.2s ease;
     }
 
-    .goal {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    a {
-      display: inline-block;
-      margin-top: 25px;
-      padding: 12px 22px;
-      background: #ff0000;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 30px;
+    .count {
+      margin-top: 15px;
+      font-size: 20px;
       font-weight: bold;
     }
 
-    a:hover {
-      opacity: 0.85;
+    footer {
+      margin-top: 60px;
+      font-size: 14px;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>📊 登録者数</h1>
+  <h1>📊 登録者数ゲージ</h1>
 
-    <div id="subs" class="count">---</div>
-
+  <div class="card">
+    <div>目標：1000人</div>
     <div class="bar-bg">
-      <div id="bar" class="bar"></div>
+      <div class="bar" id="subBar"></div>
     </div>
-
-    <div class="goal">目標：1000人</div>
-
-    <a href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">
-      ▶ YouTubeチャンネルへ
-    </a>
+    <div class="count" id="subCount">読み込み中...</div>
   </div>
 
-  <script>
-    const API_KEY = "ここにAPIキー";
-    const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
-    const GOAL = 1000;
+  <footer>
+    ▶ リュウテンのGame実況
+  </footer>
 
-    fetch(
-      `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`
-    )
-      .then(res => res.json())
-      .then(data => {
-        const subs = Number(data.items[0].statistics.subscriberCount);
-        document.getElementById("subs").textContent = subs + " 人";
+<script>
+  const API_KEY = "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY";
+  const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
+  const GOAL = 1000;
 
-        const percent = Math.min((subs / GOAL) * 100, 100);
-        document.getElementById("bar").style.width = percent + "%";
-      });
-  </script>
+  fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`)
+    .then(res => res.json())
+    .then(data => {
+      const subs = Number(data.items[0].statistics.subscriberCount);
+      const percent = Math.min((subs / GOAL) * 100, 100);
+
+      document.getElementById("subBar").style.width = percent + "%";
+      document.getElementById("subCount").textContent =
+        `現在 ${subs.toLocaleString()} 人 / 目標 ${GOAL} 人`;
+    })
+    .catch(err => {
+      document.getElementById("subCount").textContent = "取得エラー";
+      console.error(err);
+    });
+</script>
 
 </body>
 </html>
