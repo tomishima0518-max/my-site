@@ -3,243 +3,327 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📖 スペシャル完全MAXサイト🔥👀</title>
+<title>スペシャル完全版サイト🔥</title>
 <style>
+  /* ====== 背景アニメ ====== */
   body {
     margin:0;
-    font-family:'Arial',sans-serif;
-    background: linear-gradient(135deg,#ff0000,#ffffff);
+    font-family: 'Arial', sans-serif;
     overflow-x:hidden;
+    background: linear-gradient(120deg, #ff4d4d, #fff);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
   }
-  .container { text-align:center; padding:20px; }
-  h1 { margin-bottom:15px; text-shadow:0 0 8px #000; }
-
-  .btn {
-    padding:12px 24px;
-    margin:8px;
-    font-size:16px;
-    color:#fff;
-    background:linear-gradient(45deg,#ff0080,#ff8c00);
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    box-shadow:0 0 15px #ff0080,0 0 30px #ff8c00;
-    transition:0.2s ease;
-  }
-  .btn:hover { transform:scale(1.05); box-shadow:0 0 25px #fff; }
-
-  .page { display:none; opacity:0; transition:opacity 0.5s ease; }
-  .page.active { display:block; opacity:1; }
-
-  .gauge-container {
-    width:80%;
-    background:#333;
-    border-radius:20px;
-    margin:20px auto;
-    overflow:hidden;
-  }
-  .gauge-bar {
-    height:28px;
-    background:linear-gradient(90deg,#ff0,#f00);
-    width:0%;
-    transition:width 1s ease-in-out;
-    color:#000;
-    font-weight:bold;
-    text-align:right;
-    padding-right:8px;
-    line-height:28px;
+  @keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
   }
 
-  #particles {
-    position:fixed; top:0; left:0;
-    width:100%; height:100%;
-    pointer-events:none; z-index:-1;
-  }
+  /* ====== 全体スタイル ====== */
+  h1, h2, h3 {text-align:center;}
+  .page {display:none; padding:20px; min-height:100vh;}
+  .active {display:block;}
+  .btn {cursor:pointer; padding:10px 20px; margin:10px; font-size:18px; border-radius:10px; border:none; color:white; background: linear-gradient(45deg,#ff4d4d,#ff9933); box-shadow:0 0 10px gold; transition:0.3s;}
+  .btn:hover {box-shadow:0 0 30px cyan; transform:scale(1.05);}
+  .arrow {font-size:24px; margin:0 10px; cursor:pointer; transition:0.3s;}
+  .arrow:hover {color:#00ffff; transform:scale(1.2);}
+  .meter {font-weight:bold; margin:10px 0;}
+  .bar {font-family:monospace; font-size:18px;}
+  .bubble {display:inline-block; padding:10px 15px; margin:5px; border-radius:25px; background:#fff8; animation:bubbleAnim 2s infinite alternate;}
+  @keyframes bubbleAnim {0%{transform:translateY(0px);}100%{transform:translateY(-10px);}}
 
-  .speech {
-    display:inline-block;
-    background:#fff;
-    color:#000;
-    padding:10px 15px;
-    border-radius:18px;
-    margin:15px 0;
-    animation: float 2s infinite alternate;
-  }
-  @keyframes float {
-    0%{transform:translateY(0);}
-    100%{transform:translateY(-10px);}
-  }
+  /* ====== 光るボタンアニメ ====== */
+  .glow {animation: glowAnim 1s infinite alternate;}
+  @keyframes glowAnim {0%{box-shadow:0 0 10px yellow;}100%{box-shadow:0 0 30px cyan;}}
 
-  .arrow {
-    font-size:2rem;
-    padding:10px;
-    color:#fff;
-    background:linear-gradient(45deg,#00f,#0ff);
-    border-radius:50%;
-    box-shadow:0 0 15px #00f;
-    cursor:pointer;
-    user-select:none;
-    margin:0 12px;
-    transition:0.3s ease;
-  }
-  .arrow:hover { transform:scale(1.2); box-shadow:0 0 30px #0ff; }
-
-  .yt-video { margin:12px auto; max-width:360px; width:90%; }
+  /* ====== ページ番号 ====== */
+  .pagenum {text-align:center; font-size:16px; margin-top:10px;}
 </style>
 </head>
 <body>
-<div id="particles"></div>
 
-<div class="container">
-  <h1>📖 スペシャル完全MAXサイト🔥👀</h1>
-  <div id="subscriberGaugeBar" class="gauge-container">
-    <div id="subscriberGauge" class="gauge-bar">0</div>
-  </div>
+<h1>📖 スペシャル完全版サイト🔥</h1>
+<p style="text-align:center;">タップやクリックでページ移動・効果音・ゲージ更新！</p>
 
-  <!-- ページ1 -->
-  <div class="page active" id="page1">
-    <div class="speech">📖 ここを押すとページめくり効果＆音！</div>
-    <button class="btn" onclick="nextPage(); playSound('pageSound')">📖 次のページへ</button>
-  </div>
+<!-- ====== ページ 1 ====== -->
+<div class="page active" id="page1">
+  <h2>ページ 1</h2>
+  <p class="bubble">🎨 サイトデザイン整えてるよ！</p>
+  <button class="btn glow" onclick="playSound('page')">📖 ページをめくる</button>
+</div>
 
-  <!-- ページ2: 最新動画 -->
-  <div class="page" id="page2">
-    <h2>📺 最新動画</h2>
-    <div id="latestVideo"></div>
-    <div>
-      <span class="arrow" onclick="prevPage(); playSound('pageSound')">◀</span>
-      <span class="arrow" onclick="nextPage(); playSound('pageSound')">▶</span>
-    </div>
-  </div>
+<!-- ====== ページ 2 ====== -->
+<div class="page" id="page2">
+  <h2>ページ 2</h2>
+  <p class="bubble">📊 登録者ゲージ表示中</p>
+  <div class="meter">登録者数メーター:</div>
+  <div class="bar" id="subscriberBar">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>
+  <div id="subCount">0 / 1000</div>
+</div>
 
-  <!-- ページ3: 検索・ジャンル -->
-  <div class="page" id="page3">
-    <h2>🔍 動画検索・ジャンル</h2>
-    <input type="text" id="searchQuery" placeholder="検索ワード" style="padding:8px; width:60%; font-size:1rem;">
-    <button class="btn" onclick="searchVideos()">検索</button>
-    <div style="margin-top:10px;">
-      <button class="btn" onclick="showGenre('シューティング')">シューティング</button>
-      <button class="btn" onclick="showGenre('アクション')">アクション</button>
-      <button class="btn" onclick="showGenre('RPG')">RPG</button>
-      <button class="btn" onclick="showGenre('ジャングル')">ジャングル</button>
-    </div>
-    <div id="genreResults" style="margin-top:20px;"></div>
-    <div>
-      <span class="arrow" onclick="prevPage(); playSound('pageSound')">◀</span>
-      <span class="arrow" onclick="nextPage(); playSound('pageSound')">▶</span>
-    </div>
-  </div>
-
-  <!-- ページ4: 爆発エフェクト -->
-  <div class="page" id="page4">
-    <h2>💥 爆発エフェクト</h2>
-    <button class="btn" onclick="playExplosion()">💥 爆発！</button>
-    <div class="speech">ボタン押すと音とアニメ出るよ！</div>
-    <div>
-      <span class="arrow" onclick="prevPage(); playSound('pageSound')">◀</span>
-    </div>
+<!-- ====== ページ 3 ====== -->
+<div class="page" id="page3">
+  <h2>ページ 3</h2>
+  <p class="bubble">🎥 最新動画表示</p>
+  <div id="latestVideo">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/最新動画ID" 
+      title="YouTube video" frameborder="0" allowfullscreen></iframe>
   </div>
 </div>
 
-<!-- 効果音 -->
-<audio id="pageSound" src="https://actions.google.com/sounds/v1/books/page_turn.ogg"></audio>
-<audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
-<audio id="explosionSound" src="https://actions.google.com/sounds/v1/explosions/explosion.ogg"></audio>
+<!-- ====== ページ 4 ====== -->
+<div class="page" id="page4">
+  <h2>ページ 4</h2>
+  <p class="bubble">⏱ 20秒ごとに自動更新ゲージ</p>
+  <div class="bar" id="autoBar">🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛</div>
+  <div id="autoCount">6.00 / 20秒</div>
+</div>
+
+<!-- ====== ページ 5 ====== -->
+<div class="page" id="page5">
+  <h2>ページ 5</h2>
+  <p class="bubble">▶ 他のサイトへリンク</p>
+  <a class="btn glow" href="https://tomishima0518-max.github.io/my-site/" target="_blank">私のサイトはこちら</a>
+  <a class="btn glow" href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">チャンネルはこちら</a>
+</div>
+
+<!-- ====== ページ切替 ====== -->
+<div style="text-align:center; margin-top:20px;">
+  <span class="arrow" onclick="prevPage()">◀ 前</span>
+  <span class="arrow" onclick="nextPage()">次 ▶</span>
+</div>
+
+<!-- ====== ページ番号表示 ====== -->
+<div class="pagenum" id="pageNum">1/5ページ目</div>
+
+<audio id="soundPage" src="pageflip.mp3"></audio>
 
 <script>
-// ページ切替
-let currentPage = 1;
-const totalPages = 4;
-function showPage(n) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page'+n).classList.add('active');
-}
-function nextPage(){
-  currentPage = currentPage===totalPages ? 1 : currentPage+1;
-  showPage(currentPage);
-}
-function prevPage(){
-  currentPage = currentPage===1 ? totalPages : currentPage-1;
-  showPage(currentPage);
-}
-
-// 効果音
-function playSound(id){
-  const a = document.getElementById(id);
-  if(a){ a.currentTime=0; a.play().catch(()=>{}); }
-}
-// 爆発エフェクト
-function playExplosion(){
-  playSound('explosionSound');
-  const el = document.createElement('div');
-  el.style.position='absolute';
-  el.style.width='30px'; el.style.height='30px';
-  el.style.background='radial-gradient(circle, #ff0, #f00)';
-  el.style.borderRadius='50%';
-  el.style.top=Math.random()*window.innerHeight+'px';
-  el.style.left=Math.random()*window.innerWidth+'px';
-  document.body.appendChild(el);
-  el.animate([{transform:'scale(1)'},{transform:'scale(4)',opacity:0}],{duration:600});
-  setTimeout(()=>el.remove(),600);
-}
-
-// YouTube API
-const API_KEY = "AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es";
-const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
-let targetSubs = 10000;
-
-// 登録者ゲージ更新
-async function fetchSubscribers(){
-  try{
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
-    const data = await res.json();
-    const subs = parseInt(data.items[0].statistics.subscriberCount);
-    let percent = Math.min(subs/targetSubs*100,100);
-    document.getElementById('subscriberGauge').style.width = percent+'%';
-    if(subs>targetSubs) targetSubs=Math.floor(targetSubs*1.3);
-  }catch(e){console.error(e);}
-}
-fetchSubscribers();
-setInterval(fetchSubscribers,300000);
-
-// 最新動画
-async function fetchLatestVideo(){
-  try{
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&order=date&maxResults=1&key=${API_KEY}`);
-    const data = await res.json();
-    if(data.items && data.items.length>0){
-      document.getElementById('latestVideo').innerHTML =
-      `<iframe class="yt-video" width="360" height="215" src="https://www.youtube.com/embed/${data.items[0].id.videoId}" frameborder="0" allowfullscreen></iframe>`;
+  /* ====== ページ切替 ====== */
+  let currentPage = 1;
+  const totalPages = 5;
+  function showPage(num) {
+    for(let i=1;i<=totalPages;i++){
+      document.getElementById('page'+i).classList.remove('active');
     }
-  }catch(e){console.error(e);}
-}
-fetchLatestVideo();
-setInterval(fetchLatestVideo,300000);
+    document.getElementById('page'+num).classList.add('active');
+    document.getElementById('pageNum').innerText = num+'/'+totalPages+'ページ目';
+  }
+  function nextPage(){currentPage++; if(currentPage>totalPages) currentPage=1; showPage(currentPage);}
+  function prevPage(){currentPage--; if(currentPage<1) currentPage=totalPages; showPage(currentPage);}
 
-// ジャンル表示
-async function showGenre(g){
-  playSound('clickSound');
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(g)}&key=${API_KEY}`);
-  const data = await res.json();
-  let html='';
-  data.items.forEach(item=>{
-    if(item.id.videoId) html += `<iframe class="yt-video" width="300" height="170" src="https://www.youtube.com/embed/${item.id.videoId}"></iframe>`;
-  });
-  document.getElementById('genreResults').innerHTML = html;
-}
-// 検索
-async function searchVideos(){
-  playSound('clickSound');
-  const q = document.getElementById('searchQuery').value.trim();
-  if(!q) return alert("検索ワードを入力して！");
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(q)}&key=${API_KEY}`);
-  const data = await res.json();
-  let html='';
-  data.items.forEach(item=>{
-    if(item.id.videoId) html += `<iframe class="yt-video" width="300" height="170" src="https://www.youtube.com/embed/${item.id.videoId}"></iframe>`;
-  });
-  document.getElementById('genreResults').innerHTML = html;
-}
+  /* ====== 効果音 ====== */
+  function playSound(name){
+    const audio = document.getElementById('soundPage');
+    audio.play();
+  }
+
+  /* ====== YouTube API 設定 ====== */
+  const API_KEY = 'ここにAPIキー';
+  const CHANNEL_ID = 'ここにチャンネルID';
+  const targetSubs = 1000; // 目標登録者数
+  let currentSubs = 0;
+
+  async function fetchSubscribers(){
+    try{
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+      const data = await response.json();
+      currentSubs = parseInt(data.items[0].statistics.subscriberCount);
+      updateSubBar();
+    }catch(e){console.error(e);}
+  }
+
+  function updateSubBar(){
+    const bar = document.getElementById('subscriberBar');
+    let percent = currentSubs/targetSubs;
+    if(percent>1){percent=1;}
+    let filled = Math.round(percent*10);
+    bar.innerText = '⬛'.repeat(10-filled)+'🟩'.repeat(filled);
+    document.getElementById('subCount').innerText = currentSubs+' / '+targetSubs;
+  }
+
+  /* ====== 自動更新ゲージ ====== */
+  let autoCount = 0;
+  function updateAutoBar(){
+    autoCount++;
+    if(autoCount>20) autoCount=0;
+    const filled = Math.round(autoCount/20*10);
+    document.getElementById('autoBar').innerText = '🟩'.repeat(filled)+'⬛'.repeat(10-filled);
+    document.getElementById('autoCount').innerText = autoCount.toFixed(2)+' / 20秒';
+  }
+
+  setInterval(fetchSubscribers, 5000); // 5秒ごとに登録者数更新
+  setInterval(updateAutoBar, 1000); // 1秒ごとに20秒カウント
+
+  // 初回表示
+  showPage(currentPage);
+  fetchSubscribers();
 </script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スペシャル完全版サイト🔥</title>
+<style>
+  /* ====== 背景アニメ ====== */
+  body {
+    margin:0;
+    font-family: 'Arial', sans-serif;
+    overflow-x:hidden;
+    background: linear-gradient(120deg, #ff4d4d, #fff);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  @keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+  }
+
+  /* ====== 全体スタイル ====== */
+  h1, h2, h3 {text-align:center;}
+  .page {display:none; padding:20px; min-height:100vh;}
+  .active {display:block;}
+  .btn {cursor:pointer; padding:10px 20px; margin:10px; font-size:18px; border-radius:10px; border:none; color:white; background: linear-gradient(45deg,#ff4d4d,#ff9933); box-shadow:0 0 10px gold; transition:0.3s;}
+  .btn:hover {box-shadow:0 0 30px cyan; transform:scale(1.05);}
+  .arrow {font-size:24px; margin:0 10px; cursor:pointer; transition:0.3s;}
+  .arrow:hover {color:#00ffff; transform:scale(1.2);}
+  .meter {font-weight:bold; margin:10px 0;}
+  .bar {font-family:monospace; font-size:18px;}
+  .bubble {display:inline-block; padding:10px 15px; margin:5px; border-radius:25px; background:#fff8; animation:bubbleAnim 2s infinite alternate;}
+  @keyframes bubbleAnim {0%{transform:translateY(0px);}100%{transform:translateY(-10px);}}
+
+  /* ====== 光るボタンアニメ ====== */
+  .glow {animation: glowAnim 1s infinite alternate;}
+  @keyframes glowAnim {0%{box-shadow:0 0 10px yellow;}100%{box-shadow:0 0 30px cyan;}}
+
+  /* ====== ページ番号 ====== */
+  .pagenum {text-align:center; font-size:16px; margin-top:10px;}
+</style>
+</head>
+<body>
+
+<h1>📖 スペシャル完全版サイト🔥</h1>
+<p style="text-align:center;">タップやクリックでページ移動・効果音・ゲージ更新！</p>
+
+<!-- ====== ページ 1 ====== -->
+<div class="page active" id="page1">
+  <h2>ページ 1</h2>
+  <p class="bubble">🎨 サイトデザイン整えてるよ！</p>
+  <button class="btn glow" onclick="playSound('page')">📖 ページをめくる</button>
+</div>
+
+<!-- ====== ページ 2 ====== -->
+<div class="page" id="page2">
+  <h2>ページ 2</h2>
+  <p class="bubble">📊 登録者ゲージ表示中</p>
+  <div class="meter">登録者数メーター:</div>
+  <div class="bar" id="subscriberBar">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>
+  <div id="subCount">0 / 1000</div>
+</div>
+
+<!-- ====== ページ 3 ====== -->
+<div class="page" id="page3">
+  <h2>ページ 3</h2>
+  <p class="bubble">🎥 最新動画表示</p>
+  <div id="latestVideo">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/最新動画ID" 
+      title="YouTube video" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ====== ページ 4 ====== -->
+<div class="page" id="page4">
+  <h2>ページ 4</h2>
+  <p class="bubble">⏱ 20秒ごとに自動更新ゲージ</p>
+  <div class="bar" id="autoBar">🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛</div>
+  <div id="autoCount">6.00 / 20秒</div>
+</div>
+
+<!-- ====== ページ 5 ====== -->
+<div class="page" id="page5">
+  <h2>ページ 5</h2>
+  <p class="bubble">▶ 他のサイトへリンク</p>
+  <a class="btn glow" href="https://tomishima0518-max.github.io/my-site/" target="_blank">私のサイトはこちら</a>
+  <a class="btn glow" href="https://www.youtube.com/@リュウテンのGame実況" target="_blank">チャンネルはこちら</a>
+</div>
+
+<!-- ====== ページ切替 ====== -->
+<div style="text-align:center; margin-top:20px;">
+  <span class="arrow" onclick="prevPage()">◀ 前</span>
+  <span class="arrow" onclick="nextPage()">次 ▶</span>
+</div>
+
+<!-- ====== ページ番号表示 ====== -->
+<div class="pagenum" id="pageNum">1/5ページ目</div>
+
+<audio id="soundPage" src="pageflip.mp3"></audio>
+
+<script>
+  /* ====== ページ切替 ====== */
+  let currentPage = 1;
+  const totalPages = 5;
+  function showPage(num) {
+    for(let i=1;i<=totalPages;i++){
+      document.getElementById('page'+i).classList.remove('active');
+    }
+    document.getElementById('page'+num).classList.add('active');
+    document.getElementById('pageNum').innerText = num+'/'+totalPages+'ページ目';
+  }
+  function nextPage(){currentPage++; if(currentPage>totalPages) currentPage=1; showPage(currentPage);}
+  function prevPage(){currentPage--; if(currentPage<1) currentPage=totalPages; showPage(currentPage);}
+
+  /* ====== 効果音 ====== */
+  function playSound(name){
+    const audio = document.getElementById('soundPage');
+    audio.play();
+  }
+
+  /* ====== YouTube API 設定 ====== */
+  const API_KEY = 'AIzaSyAtuU52SYQS0mKrJrMh-TW-7mrJhYpt3Es';
+  const CHANNEL_ID = 'UCmZY34Ev1I5FIcDC5tdXeDg';
+  const targetSubs = 1000; // 目標登録者数
+  let currentSubs = 0;
+
+  async function fetchSubscribers(){
+    try{
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`);
+      const data = await response.json();
+      currentSubs = parseInt(data.items[0].statistics.subscriberCount);
+      updateSubBar();
+    }catch(e){console.error(e);}
+  }
+
+  function updateSubBar(){
+    const bar = document.getElementById('subscriberBar');
+    let percent = currentSubs/targetSubs;
+    if(percent>1){percent=1;}
+    let filled = Math.round(percent*10);
+    bar.innerText = '⬛'.repeat(10-filled)+'🟩'.repeat(filled);
+    document.getElementById('subCount').innerText = currentSubs+' / '+targetSubs;
+  }
+
+  /* ====== 自動更新ゲージ ====== */
+  let autoCount = 0;
+  function updateAutoBar(){
+    autoCount++;
+    if(autoCount>20) autoCount=0;
+    const filled = Math.round(autoCount/20*10);
+    document.getElementById('autoBar').innerText = '🟩'.repeat(filled)+'⬛'.repeat(10-filled);
+    document.getElementById('autoCount').innerText = autoCount.toFixed(2)+' / 20秒';
+  }
+
+  setInterval(fetchSubscribers, 5000); // 5秒ごとに登録者数更新
+  setInterval(updateAutoBar, 1000); // 1秒ごとに20秒カウント
+
+  // 初回表示
+  showPage(currentPage);
+  fetchSubscribers();
+</script>
+
 </body>
 </html>
