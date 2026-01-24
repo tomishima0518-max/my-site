@@ -3,217 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>完全版MAX🔥YouTube風サイト【未来全ステップ統合】</title>
+<title>ALL GAME × YouTube MAX</title>
+
+<!-- PART2でCSS追加 -->
 <style>
-body{margin:0;padding:0;font-family:sans-serif;background:linear-gradient(45deg,#ff6666,#66ccff);transition:background 0.5s;}
-header{padding:10px;text-align:center;background:#ff4444;color:white;font-size:1.5em;font-weight:bold;}
-button{margin:5px;padding:10px;border:none;border-radius:10px;background:#ff5555;color:white;cursor:pointer;transition:0.2s;}
-button:hover{background:#ff2222;}
-#controls{display:flex;justify-content:center;flex-wrap:wrap;padding:10px;}
-#gauges{display:flex;justify-content:space-around;margin:10px;}
-.gauge{font-size:0.9em;white-space:pre;}
-#videosLatest,#videosPopular,#videosRecommended{display:flex;flex-wrap:wrap;justify-content:center;margin:10px;}
-.video-item{width:150px;margin:5px;padding:5px;background:#fff;border-radius:10px;box-shadow:0 0 5px #ccc;text-align:center;transition:0.3s;cursor:pointer;}
-.video-item:hover{transform:scale(1.05);}
-#pagination{text-align:center;margin:10px;}
-input[type="text"]{padding:5px;border-radius:5px;border:1px solid #ccc;}
-#explodeCanvas,#modalCanvas,#miniPlayer{position:absolute;top:0;left:0;pointer-events:none;z-index:1000;}
-#videoModal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;background:#000;padding:10px;border-radius:10px;}
-#videoModal iframe{width:560px;height:315px;}
-#closeModal{position:absolute;top:5px;right:5px;background:#ff4444;color:white;border:none;border-radius:5px;cursor:pointer;padding:5px;}
-#comments{width:90%;margin:0 auto;background:#fff;border-radius:10px;padding:10px;max-height:200px;overflow-y:auto;}
-.comment-item{border-bottom:1px solid #ccc;padding:5px 0;}
-.sidebar{position:fixed;top:0;left:0;width:200px;height:100%;background:#222;color:white;padding:10px;display:flex;flex-direction:column;}
-.sidebar button{margin-bottom:5px;width:100%;}
-.main-content{margin-left:210px;padding:10px;}
-#miniPlayer{bottom:10px;right:10px;width:320px;height:180px;background:#000;display:none;z-index:999;border-radius:10px;overflow:hidden;}
-#miniPlayer iframe{width:100%;height:100%;}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #111;
+  color: #fff;
+}
+header {
+  text-align: center;
+  padding: 12px;
+  background: #000;
+}
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  flex-wrap: wrap;
+}
+nav button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+}
+nav button.active {
+  background: linear-gradient(90deg,#ff0044,#ffaa00);
+}
+section {
+  display: none;
+  padding: 20px;
+}
+section.active {
+  display: block;
+}
 </style>
 </head>
+
 <body>
-<canvas id="explodeCanvas"></canvas>
-<header>完全版MAX🔥YouTube風サイト【未来全ステップ統合】</header>
 
-<div class="sidebar">
-<button onclick="switchTab('home')">🏠ホーム</button>
-<button onclick="switchTab('videos')">🎬動画</button>
-<button onclick="switchTab('playlist')">📂再生リスト</button>
-<button onclick="switchTab('community')">💬コミュニティ</button>
-</div>
+<header>
+  <h1>🔥 ALL GAME × YouTube MAX</h1>
+  <p>完全版・無料・ブラウザのみ</p>
+</header>
 
-<div class="main-content" id="mainContent">
-<div id="controls">
-<input type="text" id="searchBox" placeholder="キーワード検索">
-<button onclick="searchVideos()">検索</button>
-<button onclick="triggerExplosion()">💥爆発💥</button>
-</div>
+<nav>
+  <button data-page="home">🏠 HOME</button>
+  <button data-page="timing">🎯 タイミング</button>
+  <button data-page="click">🔥 連打</button>
+  <button data-page="avoid">🕹 回避</button>
+  <button data-page="gacha">🎰 ガチャ</button>
+  <button data-page="youtube">▶ YouTube</button>
+  <button data-page="ranking">🏆 ランキング</button>
+</nav>
 
-<div id="gauges">
-<div class="gauge" id="subscribersGauge">登録者数メーター: ⬛⬛⬛⬛⬛ 0/0</div>
-<div class="gauge" id="viewsGauge">再生回数メーター: ⬛⬛⬛⬛⬛ 0/0</div>
-<div class="gauge" id="timeGauge">20秒ゲージ: ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛ 0.000/20秒</div>
-</div>
+<!-- ================= HOME ================= -->
+<section id="home" class="active">
+  <h2>ようこそ</h2>
+  <p>
+    このサイトは<br>
+    🎮 ゲーム × ▶ YouTube × 💥 演出<br>
+    を全部合体した完全版MAXです。
+  </p>
+</section>
 
-<h3 id="latestTitle" style="text-align:center;">最新動画</h3>
-<div id="videosLatest"></div>
+<!-- ================= タイミング ================= -->
+<section id="timing">
+  <h2>🎯 タイミングゲーム</h2>
+  <div class="bar-bg">
+    <div id="timingBar" class="bar"></div>
+  </div>
+  <button id="timingStop">STOP</button>
+  <p id="timingResult"></p>
+</section>
 
-<h3 id="popularTitle" style="text-align:center;">人気動画</h3>
-<div id="videosPopular"></div>
+<!-- ================= 連打 ================= -->
+<section id="click">
+  <h2>🔥 連打ゲーム</h2>
+  <button id="clickBtn">CLICK!</button>
+  <p>回数: <span id="clickCount">0</span></p>
+  <p id="clickTimer"></p>
+</section>
 
-<h3 id="recommendedTitle" style="text-align:center;">おすすめ動画</h3>
-<div id="videosRecommended"></div>
+<!-- ================= 回避 ================= -->
+<section id="avoid">
+  <h2>🕹 回避ゲーム</h2>
+  <canvas id="avoidCanvas" width="300" height="400"></canvas>
+  <p>生存時間: <span id="avoidTime">0.00</span>s</p>
+</section>
 
-<div id="pagination">
-<button onclick="prevPage()">◀ 前のページ</button>
-<span id="pageIndicator">1/5ページ目</span>
-<button onclick="nextPage()">次のページ ▶</button>
-</div>
+<!-- ================= ガチャ ================= -->
+<section id="gacha">
+  <h2>🎰 ガチャ</h2>
+  <button id="gachaBtn">回す</button>
+  <p id="gachaResult"></p>
+</section>
 
-<div id="comments"><strong>コメント欄（モック）</strong></div>
-</div>
+<!-- ================= YouTube ================= -->
+<section id="youtube">
+  <h2>▶ YouTube連動</h2>
+  <h3>🆕 最新動画</h3>
+  <div id="latestVideos"></div>
 
-<div id="videoModal">
-<button id="closeModal" onclick="closeModal()">✖</button>
-<iframe id="modalFrame" src="" frameborder="0" allowfullscreen></iframe>
-<div id="modalInfo" style="color:white;margin-top:5px;"></div>
-</div>
+  <h3>🔥 人気動画</h3>
+  <div id="popularVideos"></div>
+</section>
 
-<div id="miniPlayer"><iframe id="miniFrame" src="" frameborder="0" allowfullscreen></iframe></div>
+<!-- ================= ランキング ================= -->
+<section id="ranking">
+  <h2>🏆 ランキング</h2>
+  <ol id="rankList"></ol>
+</section>
 
+<!-- ================= JS土台 ================= -->
 <script>
-// ===== API設定 =====
-const API_KEY = '保存済みAPIキー';
-const CHANNEL_ID = '保存済みのチャンネルID';
-const TOTAL_PAGES = 5;
-const VIDEOS_PER_PAGE = 10;
+/* ========= ページ切替（共通） ========= */
+const buttons = document.querySelectorAll("nav button");
+const sections = document.querySelectorAll("section");
 
-// ===== 状態 =====
-let currentPage = 1;
-let videos=[], videosPopular=[], videosRecommended=[];
-let subTarget=0, viewTarget=0;
-let subDisplay=0, viewDisplay=0;
-let timer=0;
-let bgHue=0;
-let activeTab='home';
-let miniPlayerActive=false;
+buttons.forEach(btn=>{
+  btn.onclick = ()=>{
+    buttons.forEach(b=>b.classList.remove("active"));
+    sections.forEach(s=>s.classList.remove("active"));
 
-// ===== 背景アニメ =====
-function animateBackground(){ bgHue+=0.1; if(bgHue>360) bgHue=0; document.body.style.background=`linear-gradient(${bgHue}deg,#ff6666,#66ccff)`; requestAnimationFrame(animateBackground);}
-
-// ===== ゲージ更新 =====
-function updateGauges(){
-  if(subDisplay<subTarget) subDisplay += Math.max((subTarget-subDisplay)/50,0.5);
-  if(viewDisplay<viewDisplay) viewDisplay += Math.max((viewTarget-viewDisplay)/50,0.5);
-  let subBlocks = Math.floor(subDisplay/(subTarget/5)||0);
-  let viewBlocks = Math.floor(viewDisplay/(viewTarget/5)||0);
-  let timeBlocks = Math.floor(timer/2);
-  let subColor = subBlocks==5?'🟨':'🟩';
-  let viewColor = viewBlocks==5?'🟨':'🟩';
-  document.getElementById("subscribersGauge").innerText=`登録者数メーター: ${subColor.repeat(subBlocks)}${"⬛".repeat(5-subBlocks)} ${Math.floor(subDisplay)}/${subTarget}`;
-  document.getElementById("viewsGauge").innerText=`再生回数メーター: ${viewColor.repeat(viewBlocks)}${"⬛".repeat(5-viewBlocks)} ${Math.floor(viewDisplay)}/${viewTarget}`;
-  document.getElementById("timeGauge").innerText=`20秒ゲージ: ${"🟩".repeat(timeBlocks)}${"⬛".repeat(10-timeBlocks)} ${timer.toFixed(3)}/20秒`;
-}
-
-// ===== APIでチャンネル取得 =====
-async function fetchChannelStats(){
-  try{
-    const resp = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${CHANNEL_ID}&key=${API_KEY}`);
-    const data = await resp.json();
-    const stats = data.items[0].statistics;
-    subTarget=parseInt(stats.subscriberCount);
-    viewTarget=parseInt(stats.viewCount);
-    const snippet = data.items[0].snippet;
-    const header=document.querySelector('header');
-    header.innerHTML=`<img src="${snippet.thumbnails.default.url}" style="vertical-align:middle;border-radius:50%;"> ${snippet.title} 🔥完全版MAX`;
-  }catch(err){console.error(err); subTarget=350; viewTarget=720;}
-}
-
-// ===== APIで動画取得 =====
-async function fetchVideos(){
-  try{
-    const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=50&type=video`);
-    const data = await resp.json();
-    videos = data.items.map(v=>({title:v.snippet.title,thumb:v.snippet.thumbnails.default.url,videoId:v.id.videoId,published:v.snippet.publishedAt,desc:v.snippet.description}));
-    const ids = videos.map(v=>v.videoId).join(',');
-    const statResp = await fetch(`https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${ids}&part=statistics`);
-    const statData = await statResp.json();
-    videosPopular = statData.items.map((v,i)=>({...videos[i], views:parseInt(v.statistics.viewCount), likes:parseInt(v.statistics.likeCount||0)})).sort((a,b)=>b.views-a.views);
-    videosRecommended = videosPopular.slice(0,10); //簡易おすすめ
-  }catch(err){console.error(err);}
-}
-
-// ===== 動画表示 =====
-function showVideos(keyword=""){
-  const latestDiv=document.getElementById("videosLatest");
-  const popularDiv=document.getElementById("videosPopular");
-  const recDiv=document.getElementById("videosRecommended");
-  latestDiv.innerHTML=""; popularDiv.innerHTML=""; recDiv.innerHTML="";
-  let filteredLatest = keyword? videos.filter(v=>v.title.includes(keyword)):videos;
-  let filteredPopular = keyword? videosPopular.filter(v=>v.title.includes(keyword)):videosPopular;
-  let filteredRec = keyword? videosRecommended.filter(v=>v.title.includes(keyword)):videosRecommended;
-  let start = (currentPage-1)*VIDEOS_PER_PAGE;
-  filteredLatest.slice(start,start+VIDEOS_PER_PAGE).forEach(v=>addVideoDiv(latestDiv,v,true));
-  filteredPopular.slice(start,start+VIDEOS_PER_PAGE).forEach(v=>addVideoDiv(popularDiv,v,true));
-  filteredRec.forEach(v=>addVideoDiv(recDiv,v,true));
-  document.getElementById("pageIndicator").innerText=`${currentPage}/${TOTAL_PAGES}ページ目`;
-}
-
-// ===== 動画DIV追加 =====
-function addVideoDiv(container,v,enableMini=false){
-  let div=document.createElement("div");
-  div.className="video-item";
-  div.innerHTML=`<img src="${v.thumb}" style="width:100%;border-radius:5px;"><br>${v.title}<br>再生:${v.views||0} 高評価:${v.likes||0}`;
-  div.onclick=()=>{
-    openModal(v.videoId,v.title,v.desc);
-    if(enableMini) openMiniPlayer(v.videoId);
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.page).classList.add("active");
   };
-  container.appendChild(div);
-}
-
-// ===== ページ切替・検索 =====
-function prevPage(){ if(currentPage>1){currentPage--; showVideos(document.getElementById("searchBox").value);} }
-function nextPage(){ if(currentPage<TOTAL_PAGES){currentPage++; showVideos(document.getElementById("searchBox").value);} }
-function searchVideos(){ let kw=document.getElementById("searchBox").value; showVideos(kw); }
-
-// ===== タブ切替 =====
-function switchTab(tab){ activeTab=tab; document.getElementById("mainContent").style.display='block'; }
-
-// ===== タイマー0.001秒更新 =====
-function animate(){ timer+=0.001; if(timer>20) timer=0; updateGauges(); requestAnimationFrame(animate); }
-
-// ===== 爆発エフェクト =====
-const canvas=document.getElementById("explodeCanvas");
-canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-const ctx=canvas.getContext("2d");
-let particles=[];
-function triggerExplosion(){ for(let i=0;i<100;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,vx:(Math.random()-0.5)*5,vy:(Math.random()-0.5)*5,life:100});} }
-function animateParticles(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=particles.length-1;i>=0;i--){let p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.life--; ctx.fillStyle=`rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0,${p.life/100})`; ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill(); if(p.life<=0) particles.splice(i,1);} requestAnimationFrame(animateParticles); }
-
-// ===== モーダル再生 =====
-function openModal(videoId,title,desc){ document.getElementById("modalFrame").src=`https://www.youtube.com/embed/${videoId}?autoplay=1`; document.getElementById("videoModal").style.display="block"; document.getElementById("modalInfo").innerText=`${title}\n${desc}`; updateGaugesOnPlay(); }
-function closeModal(){document.getElementById("modalFrame").src=""; document.getElementById("videoModal").style.display="none";}
-
-// ===== ミニプレイヤー =====
-function openMiniPlayer(videoId){ miniPlayerActive=true; document.getElementById("miniPlayer").style.display="block"; document.getElementById("miniFrame").src=`https://www.youtube.com/embed/${videoId}?autoplay=1`; }
-function closeMiniPlayer(){ miniPlayerActive=false; document.getElementById("miniPlayer").style.display="none"; document.getElementById("miniFrame").src=""; }
-
-// ===== コメントモック =====
-function addComment(user,text){ let c=document.createElement("div"); c.className="comment-item"; c.innerText=`${user}: ${text}`; document.getElementById("comments").appendChild(c); }
-
-// ===== 再生中ゲージ反応 =====
-function updateGaugesOnPlay(){ triggerExplosion(); subDisplay+=1; viewDisplay+=1; }
-
-// ===== 初期化 =====
-window.onload=async ()=>{
-  await fetchChannelStats();
-  await fetchVideos();
-  showVideos();
-  animate();
-  animateParticles();
-  animateBackground();
-  addComment("ユーザーA","未来版MAX🔥最高です！");
-  addComment("ユーザーB","おすすめ動画も自動生成されてる👀");
-}
+});
 </script>
+
 </body>
 </html>
