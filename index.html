@@ -2,103 +2,46 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>完全版MAXゲーム Firebase版</title>
+<title>DOORSゲーム Firebase版</title>
 <style>
-body { font-family: Arial; margin:0; padding:0; background:#111; color:#eee; }
-header { padding:10px; background:#222; text-align:center; }
-.tabs { display:flex; justify-content:center; gap:10px; margin:10px 0; flex-wrap:wrap; }
-.tabs button { padding:10px 20px; cursor:pointer; background:#333; color:#eee; border:none; border-radius:5px; margin:2px;}
-.tabs button.active { background:#0af; }
-.game-card { display:none; padding:20px; text-align:center; }
-.rank { text-align:left; max-height:200px; overflow-y:auto; margin-top:10px; }
-#youtubeFrame { width:100%; height:200px; margin:10px 0; border:none; }
-#gauge { width:80%; height:20px; background:#333; margin:10px auto; border-radius:10px; overflow:hidden; }
-#gaugeFill { width:0%; height:100%; background:#0f0; transition:width 0.01s linear; }
-input { padding:5px; text-align:center; width:100px; }
-button { margin:5px; padding:5px 10px; cursor:pointer; background:#0af; color:#fff; border:none; border-radius:5px; }
-#timeDisplay { font-size:28px; color:red; margin:10px 0; }
+body { margin:0; overflow:hidden; font-family:sans-serif; background:#000; color:#fff; }
+#ui { position:absolute; top:10px; left:10px; z-index:10; }
+#hpBar { width:300px; height:20px; background:#555; }
+#hpFill { width:100%; height:100%; background:#0f0; }
+#timerBar { width:300px; height:20px; background:#555; margin-top:5px; }
+#timerFill { width:100%; height:100%; background:#0f0; }
+#message { margin-top:10px; white-space:pre-line; }
+#difficultyButtons button { margin-right:5px; padding:5px 10px; }
+#rankDOORS { max-height:200px; overflow-y:auto; margin-top:10px; }
+#myRankDOORS { margin-top:5px; }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<header>
-  <h1>完全版MAXゲーム Firebase版</h1>
-  <div id="youtubeFrameContainer">
-    <iframe id="youtubeFrame" src="https://www.youtube.com/embed/?listType=user_uploads&list=UCmZY34Ev1I5FIcDC5tdXeDg" allowfullscreen></iframe>
+<div id="ui">
+  <div id="difficultyButtons">
+    <button onclick="startGame('easy')">簡単</button>
+    <button onclick="startGame('normal')">普通</button>
+    <button onclick="startGame('hard')">ハード</button>
   </div>
-  <div id="gauge"><div id="gaugeFill"></div></div>
-</header>
-
-<div class="tabs">
-  <button onclick="switchGame(1)" class="active">20秒連打</button>
-  <button onclick="switchGame(2)">DOORS風脱出</button>
-  <button onclick="switchGame(3)">放置系</button>
-  <button onclick="switchGame(4)">クイズ/経営</button>
-  <button onclick="switchGame(5)">算数ゲーム</button>
+  <div id="hpBar"><div id="hpFill"></div></div>
+  <div id="timerBar"><div id="timerFill"></div></div>
+  <div id="message"></div>
+  <h4>🏆 DOORSランキング</h4>
+  <div id="myRankDOORS"></div>
+  <ol id="rankDOORS"></ol>
 </div>
 
-<!-- 各ゲームエリア省略（先ほどの構造と同じ） -->
-<div id="game1" class="game-card" style="display:block">
-  <h3>20秒連打ゲーム</h3>
-  <div>スコア：<span id="score1">0</span></div>
-  <button onclick="clickGame1()">連打！</button>
-  <div id="feedback1"></div>
-  <h4>ランキング</h4>
-  <div id="myRank1"></div>
-  <ol id="rank1" class="rank"></ol>
-</div>
-<div id="game2" class="game-card">
-  <h3>DOORS風脱出ゲーム</h3>
-  <p>簡単なクリックで脱出ゲーム</p>
-  <button onclick="doorsNext()">次の部屋へ</button>
-  <div id="feedback2"></div>
-  <h4>ランキング</h4>
-  <div id="myRank2"></div>
-  <ol id="rank2" class="rank"></ol>
-</div>
-<div id="game3" class="game-card">
-  <h3>放置系クリッカー</h3>
-  <div>スコア：<span id="score3">0</span></div>
-  <button onclick="clickGame3()">クリックで増加</button>
-  <div id="feedback3"></div>
-  <h4>ランキング</h4>
-  <div id="myRank3"></div>
-  <ol id="rank3" class="rank"></ol>
-</div>
-<div id="game4" class="game-card">
-  <h3>クイズ/経営系ゲーム</h3>
-  <div id="quizQuestion">問題がここに出ます</div>
-  <input type="text" id="quizAnswer" placeholder="答えを入力">
-  <button onclick="submitQuiz()">回答</button>
-  <div id="feedback4"></div>
-  <div>スコア：<span id="score4">0</span></div>
-  <h4>ランキング</h4>
-  <div id="myRank4"></div>
-  <ol id="rank4" class="rank"></ol>
-</div>
-<div id="game5" class="game-card">
-  <h3>🧮 ネプリーグ算数チャレンジ</h3>
-  <div>HP：<span id="hp">300</span></div>
-  <div>スコア：<span id="score">0</span></div>
-  <div id="timeDisplay"></div>
-  <div id="question"></div>
-  <input type="number" id="answer" placeholder="答えを入力">
-  <button onclick="submitAnswer()">回答</button>
-  <div id="feedback"></div>
-  <h4>🏆 算数ゲームランキング</h4>
-  <div id="myRank_arith"></div>
-  <ol id="rank_arith" class="rank"></ol>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
 /* =========================
    Firebase 初期化
    ========================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyXXXXX",
+  apiKey: "AIzaSyXXXXX", // 君のAPIキー
   authDomain: "ryutengame.firebaseapp.com",
   databaseURL: "https://ryutengame-default-rtdb.firebaseio.com",
   projectId: "ryutengame",
@@ -110,112 +53,136 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 /* =========================
-   タブ切替
+   ランキング保存／取得
    ========================= */
-let currentGame = 1;
-function switchGame(num){
-  for(let i=1;i<=5;i++){
-    document.getElementById(`game${i}`).style.display = i===num ? "block" : "none";
-    document.querySelectorAll(".tabs button")[i-1].classList.toggle("active", i===num);
-  }
-  currentGame = num;
-}
-
-/* =========================
-   ★ ゲームスコア Firebase 保存／取得関数
-   ========================= */
-function saveScore(gameKey, score){
+function saveScoreDOORS(score){
   const name = localStorage.name || prompt("名前"); localStorage.name=name;
-  db.ref(`rankings/${gameKey}`).push({name, score});
+  db.ref('rankings/doors').push({name, score});
 }
-function getRank(gameKey, rankElId, myRankElId){
-  db.ref(`rankings/${gameKey}`).orderByChild('score').limitToLast(150).once('value', snapshot => {
-    const r = [];
-    snapshot.forEach(child => r.push(child.val()));
+function getRankDOORS(){
+  db.ref('rankings/doors').orderByChild('score').limitToLast(150).once('value', snapshot=>{
+    const r=[]; snapshot.forEach(child=>r.push(child.val()));
     r.sort((a,b)=>b.score-a.score);
-    const rankEl = document.getElementById(rankElId);
-    const myRankEl = document.getElementById(myRankElId);
+    const rankEl=document.getElementById('rankDOORS');
+    const myRankEl=document.getElementById('myRankDOORS');
     rankEl.innerHTML="";
     r.forEach((d,i)=>{
-      const li = document.createElement("li");
+      const li=document.createElement("li");
       li.textContent=`${i+1}位 ${d.name} : ${d.score}`;
       rankEl.appendChild(li);
-      if(d.name===localStorage.name) myRankEl.textContent=`あなた：${i+1}位｜${d.score}点`;
+      if(d.name===localStorage.name) myRankEl.textContent=`あなた：${i+1}位｜${d.score}ドア`;
     });
   });
 }
 
 /* =========================
-   ★ 各ゲーム簡易実装
+   Three.js DOORSゲーム
    ========================= */
-// 20秒連打
-let score1=0; function clickGame1(){ score1++; document.getElementById("score1").textContent=score1; }
-function saveRank1(){ saveScore('game1', score1); getRank('game1','rank1','myRank1'); }
+let scene, camera, renderer;
+let playerHP = 300;
+let currentDoor = 0;
+let difficulty;
+let timer = 0;
+let timerMax = 0;
+let timerInterval;
 
-// DOORS風
-let doorsRoom=1; function doorsNext(){ doorsRoom++; document.getElementById("feedback2").textContent=`部屋${doorsRoom}に進んだ！`; }
-function saveRank2(){ saveScore('game2', doorsRoom); getRank('game2','rank2','myRank2'); }
+function startGame(mode){
+  difficulty=mode;
+  document.getElementById('difficultyButtons').style.display='none';
+  currentDoor=0; playerHP=300;
+  initScene();
+  elevatorDrop();
+}
 
-// 放置系
-let score3=0; setInterval(()=>{ score3+=1; document.getElementById("score3").textContent=score3; },1000);
-function clickGame3(){ score3+=5; document.getElementById("score3").textContent=score3; }
-function saveRank3(){ saveScore('game3', score3); getRank('game3','rank3','myRank3'); }
+// Three.js初期化
+function initScene(){
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0,1.6,5);
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-// クイズ
-let score4=0; const quizData=[{q:"1+1=?", a:"2"},{q:"2*3=?", a:"6"},{q:"10-4=?", a:"6"}]; let quizIndex=0;
-function showQuiz(){ document.getElementById("quizQuestion").textContent=quizData[quizIndex].q; }
-function submitQuiz(){ const ans=document.getElementById("quizAnswer").value;
-if(ans===quizData[quizIndex].a){ score4+=10; document.getElementById("feedback4").textContent="正解！＋10点"; }
-else { document.getElementById("feedback4").textContent="不正解！"; }
-document.getElementById("score4").textContent=score4;
-quizIndex=(quizIndex+1)%quizData.length; document.getElementById("quizAnswer").value=""; showQuiz();}
-function saveRank4(){ saveScore('game4', score4); getRank('game4','rank4','myRank4'); }
-showQuiz();
+  let floor = new THREE.Mesh(new THREE.BoxGeometry(10,0.1,10), new THREE.MeshBasicMaterial({color:0x333}));
+  scene.add(floor);
 
-// 算数ゲーム
-let hp=300; let score5=0; let timeLeft=10; let timerInterval;
-const RANK_KEY_ARITH="game5";
-function newQuestion(){ 
-  const levels=[{name:"簡単",point:75,damage:5},{name:"普通",point:100,damage:7.5},{name:"難",point:140,damage:10},{name:"鬼",point:190,damage:15},{name:"ボス",point:250,damage:30}];
-  const level=levels[Math.floor(Math.random()*levels.length)];
-  const a=Math.floor(Math.random()*(level.point/10+1))+1;
-  const b=Math.floor(Math.random()*(level.point/10+1))+1;
-  const op=["+","-","*"][Math.floor(Math.random()*3)];
-  const questionText=`${a} ${op} ${b}`;
-  const answerValue=eval(questionText);
-  const qEl=document.getElementById("question");
-  qEl.textContent=`${level.name}： ${questionText} = ?`;
-  qEl.dataset.answer=answerValue; qEl.dataset.point=level.point; qEl.dataset.damage=level.damage;
-  document.getElementById("answer").value="";
-  timeLeft=10; document.getElementById("timeDisplay").textContent="";
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    timeLeft-=0.01;
-    if(timeLeft<=3 && timeLeft>0){ document.getElementById("timeDisplay").textContent=timeLeft.toFixed(2); }
-    else if(timeLeft<=0){ clearInterval(timerInterval); wrongAnswer(); }
+  for(let i=0;i<3;i++){
+    let door = new THREE.Mesh(new THREE.BoxGeometry(1,2,0.1), new THREE.MeshBasicMaterial({color:0x888}));
+    door.position.set(i*3-3,1,0);
+    door.name='door'+(i+1);
+    scene.add(door);
+  }
+
+  animate();
+}
+
+function elevatorDrop(){
+  let dropTime=0;
+  let dropInterval=setInterval(()=>{
+    camera.position.y -=0.02;
+    dropTime+=0.02;
+    if(dropTime>=5){
+      clearInterval(dropInterval);
+      postElevatorEffect();
+    }
   },10);
 }
-function submitAnswer(){ const qEl=document.getElementById("question");
-const ans=Number(document.getElementById("answer").value);
-const correct=Number(qEl.dataset.answer);
-if(ans===correct){ score5+=Number(qEl.dataset.point); document.getElementById("feedback").textContent=`正解！＋${qEl.dataset.point}ポイント`; }
-else { wrongAnswer(); return; }
-updateStatus(); newQuestion();
-}
-function wrongAnswer(){ const qEl=document.getElementById("question");
-hp-=Number(qEl.dataset.damage); document.getElementById("feedback").textContent=`不正解！－${qEl.dataset.damage}HP`;
-updateStatus(); if(hp<=0){ document.getElementById("feedback").textContent=`ゲームオーバー！最終スコア：${score5}`; clearInterval(timerInterval); saveArithScore(); return; } newQuestion();
-}
-function updateStatus(){ document.getElementById("hp").textContent=hp; document.getElementById("score").textContent=score5; document.getElementById("timeDisplay").textContent=""; }
-function saveArithScore(){ saveScore(RANK_KEY_ARITH, score5); getRank(RANK_KEY_ARITH,'rank_arith','myRank_arith'); }
-newQuestion();
 
-/* =========================
-   ★ 20秒ゲージアニメーション
-   ========================= */
-let gaugeWidth=0;
-setInterval(()=>{ gaugeWidth+=0.5; if(gaugeWidth>100) gaugeWidth=0; document.getElementById("gaugeFill").style.width=gaugeWidth+"%"; },100);
+function postElevatorEffect(){
+  let message = document.getElementById('message');
+  if(difficulty=='easy') message.innerText='簡単モード: ペナルティなし\n';
+  else if(difficulty=='normal') message.innerText='普通モード: ダメージ35 & ドア12までスピード5%低下\n';
+  else message.innerText='ハードモード: ダメージ80 & ドア15までスピード10%低下\n';
+  message.innerText += 'ドア1からスタート！';
+  startTimerAttack();
+}
+
+// アニメーション
+function animate(){ requestAnimationFrame(animate); renderer.render(scene, camera); }
+
+// HP更新
+function updateHP(amount){
+  playerHP = Math.max(0, playerHP+amount);
+  document.getElementById('hpFill').style.width=(playerHP/300*100)+'%';
+  if(playerHP<=0){
+    document.getElementById('message').innerText=`ゲームオーバー💀 最終スコア：${currentDoor}`;
+    clearInterval(timerInterval);
+    saveScoreDOORS(currentDoor);
+    getRankDOORS();
+  }
+}
+
+// タイマーアタック
+function startTimerAttack(){
+  timerMax=(difficulty=='easy')?35:(difficulty=='normal')?25:20;
+  timer=timerMax;
+  timerInterval=setInterval(()=>{
+    timer-=0.1;
+    let pct = timer/timerMax*100;
+    let fill = document.getElementById('timerFill');
+    if(pct>60) fill.style.background='green';
+    else if(pct>30) fill.style.background='yellow';
+    else if(pct>10) fill.style.background='orange';
+    else if(pct>0) fill.style.background='red';
+    else {
+      fill.style.background='gray';
+      document.getElementById('message').innerText='☠️タイマーアタックダメージ発生!';
+      updateHP(-75);
+      timer = timerMax;
+    }
+    fill.style.width=Math.max(0,pct)+'%';
+  },100);
+}
+
+// ドア進む
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight'){
+    currentDoor++;
+    document.getElementById('message').innerText=`ドア${currentDoor}に到達！`;
+    saveScoreDOORS(currentDoor);
+    getRankDOORS();
+  }
+});
 </script>
-
 </body>
 </html>
