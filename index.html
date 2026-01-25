@@ -2,22 +2,19 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>DOORSゲーム Firebase版</title>
+<title>3DDOORS完全版</title>
 <style>
-body { margin:0; overflow:hidden; font-family:sans-serif; background:#000; color:#fff; }
-#ui { position:absolute; top:10px; left:10px; z-index:10; }
-#hpBar { width:300px; height:20px; background:#555; }
-#hpFill { width:100%; height:100%; background:#0f0; }
-#timerBar { width:300px; height:20px; background:#555; margin-top:5px; }
-#timerFill { width:100%; height:100%; background:#0f0; }
-#message { margin-top:10px; white-space:pre-line; }
-#difficultyButtons button { margin-right:5px; padding:5px 10px; }
-#rankDOORS { max-height:200px; overflow-y:auto; margin-top:10px; }
-#myRankDOORS { margin-top:5px; }
+  body { margin:0; overflow:hidden; font-family:sans-serif; background:#000; color:#fff; }
+  #ui { position:absolute; top:10px; left:10px; z-index:10; }
+  #hpBar { width:300px; height:20px; background:#555; }
+  #hpFill { width:100%; height:100%; background:#0f0; }
+  #timerBar { width:300px; height:20px; background:#555; margin-top:5px; }
+  #timerFill { width:100%; height:100%; background:#0f0; }
+  #message { margin-top:10px; white-space:pre-line; }
+  #difficultyButtons button { margin-right:5px; padding:5px 10px; }
 </style>
 </head>
 <body>
-
 <div id="ui">
   <div id="difficultyButtons">
     <button onclick="startGame('easy')">簡単</button>
@@ -27,69 +24,23 @@ body { margin:0; overflow:hidden; font-family:sans-serif; background:#000; color
   <div id="hpBar"><div id="hpFill"></div></div>
   <div id="timerBar"><div id="timerFill"></div></div>
   <div id="message"></div>
-  <h4>🏆 DOORSランキング</h4>
-  <div id="myRankDOORS"></div>
-  <ol id="rankDOORS"></ol>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-/* =========================
-   Firebase 初期化
-   ========================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyXXXXX", // 君のAPIキー
-  authDomain: "ryutengame.firebaseapp.com",
-  databaseURL: "https://ryutengame-default-rtdb.firebaseio.com",
-  projectId: "ryutengame",
-  storageBucket: "ryutengame.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* =========================
-   ランキング保存／取得
-   ========================= */
-function saveScoreDOORS(score){
-  const name = localStorage.name || prompt("名前"); localStorage.name=name;
-  db.ref('rankings/doors').push({name, score});
-}
-function getRankDOORS(){
-  db.ref('rankings/doors').orderByChild('score').limitToLast(150).once('value', snapshot=>{
-    const r=[]; snapshot.forEach(child=>r.push(child.val()));
-    r.sort((a,b)=>b.score-a.score);
-    const rankEl=document.getElementById('rankDOORS');
-    const myRankEl=document.getElementById('myRankDOORS');
-    rankEl.innerHTML="";
-    r.forEach((d,i)=>{
-      const li=document.createElement("li");
-      li.textContent=`${i+1}位 ${d.name} : ${d.score}`;
-      rankEl.appendChild(li);
-      if(d.name===localStorage.name) myRankEl.textContent=`あなた：${i+1}位｜${d.score}ドア`;
-    });
-  });
-}
-
-/* =========================
-   Three.js DOORSゲーム
-   ========================= */
 let scene, camera, renderer;
 let playerHP = 300;
-let currentDoor = 0;
+let currentDoor = 1;
 let difficulty;
 let timer = 0;
 let timerMax = 0;
 let timerInterval;
+let timerActive = false;
 
+// ゲーム開始
 function startGame(mode){
-  difficulty=mode;
+  difficulty = mode;
   document.getElementById('difficultyButtons').style.display='none';
-  currentDoor=0; playerHP=300;
   initScene();
   elevatorDrop();
 }
@@ -99,28 +50,38 @@ function initScene(){
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
   camera.position.set(0,1.6,5);
+
   renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
-  let floor = new THREE.Mesh(new THREE.BoxGeometry(10,0.1,10), new THREE.MeshBasicMaterial({color:0x333}));
+  // 床
+  let floor = new THREE.Mesh(
+    new THREE.BoxGeometry(10,0.1,10),
+    new THREE.MeshBasicMaterial({color:0x333})
+  );
   scene.add(floor);
 
+  // チュートリアルドア1〜3
   for(let i=0;i<3;i++){
-    let door = new THREE.Mesh(new THREE.BoxGeometry(1,2,0.1), new THREE.MeshBasicMaterial({color:0x888}));
+    let door = new THREE.Mesh(
+      new THREE.BoxGeometry(1,2,0.1),
+      new THREE.MeshBasicMaterial({color:0x888})
+    );
     door.position.set(i*3-3,1,0);
-    door.name='door'+(i+1);
+    door.name = 'door'+(i+1);
     scene.add(door);
   }
 
   animate();
 }
 
+// エレベーター落下演出
 function elevatorDrop(){
-  let dropTime=0;
-  let dropInterval=setInterval(()=>{
-    camera.position.y -=0.02;
-    dropTime+=0.02;
+  let dropTime = 0;
+  let dropInterval = setInterval(()=>{
+    camera.position.y -= 0.02;
+    dropTime += 0.02;
     if(dropTime>=5){
       clearInterval(dropInterval);
       postElevatorEffect();
@@ -128,38 +89,42 @@ function elevatorDrop(){
   },10);
 }
 
+// 落下後の文字表示ペナルティ
 function postElevatorEffect(){
   let message = document.getElementById('message');
-  if(difficulty=='easy') message.innerText='簡単モード: ペナルティなし\n';
-  else if(difficulty=='normal') message.innerText='普通モード: ダメージ35 & ドア12までスピード5%低下\n';
-  else message.innerText='ハードモード: ダメージ80 & ドア15までスピード10%低下\n';
-  message.innerText += 'ドア1からスタート！';
-  startTimerAttack();
+  if(difficulty=='easy') message.innerText='簡単モード: ペナルティなし';
+  else if(difficulty=='normal') message.innerText='普通モード: ダメージ35 & ドア12までスピード5%低下';
+  else message.innerText='ハードモード: ダメージ80 & ドア15までスピード10%低下';
+
+  message.innerText += '\nドア1からチュートリアル開始';
 }
 
-// アニメーション
-function animate(){ requestAnimationFrame(animate); renderer.render(scene, camera); }
+// アニメーションループ
+function animate(){
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
 
 // HP更新
 function updateHP(amount){
   playerHP = Math.max(0, playerHP+amount);
-  document.getElementById('hpFill').style.width=(playerHP/300*100)+'%';
+  let fill = document.getElementById('hpFill');
+  fill.style.width = (playerHP/300*100)+'%';
   if(playerHP<=0){
-    document.getElementById('message').innerText=`ゲームオーバー💀 最終スコア：${currentDoor}`;
+    document.getElementById('message').innerText='ゲームオーバー💀';
     clearInterval(timerInterval);
-    saveScoreDOORS(currentDoor);
-    getRankDOORS();
   }
 }
 
-// タイマーアタック
+// タイマーアタック開始
 function startTimerAttack(){
-  timerMax=(difficulty=='easy')?35:(difficulty=='normal')?25:20;
-  timer=timerMax;
-  timerInterval=setInterval(()=>{
-    timer-=0.1;
+  timerActive = true;
+  timerMax = (difficulty=='easy')?35:(difficulty=='normal')?25:20;
+  timer = timerMax;
+  let fill = document.getElementById('timerFill');
+  timerInterval = setInterval(()=>{
+    timer -= 0.1;
     let pct = timer/timerMax*100;
-    let fill = document.getElementById('timerFill');
     if(pct>60) fill.style.background='green';
     else if(pct>30) fill.style.background='yellow';
     else if(pct>10) fill.style.background='orange';
@@ -170,19 +135,9 @@ function startTimerAttack(){
       updateHP(-75);
       timer = timerMax;
     }
-    fill.style.width=Math.max(0,pct)+'%';
+    fill.style.width = (Math.max(0,pct))+'%';
   },100);
 }
-
-// ドア進む
-document.addEventListener('keydown', (e)=>{
-  if(e.key==='ArrowRight'){
-    currentDoor++;
-    document.getElementById('message').innerText=`ドア${currentDoor}に到達！`;
-    saveScoreDOORS(currentDoor);
-    getRankDOORS();
-  }
-});
 </script>
 </body>
 </html>
