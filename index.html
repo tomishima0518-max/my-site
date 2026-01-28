@@ -1,245 +1,93 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3DDOORS 最終MAX🔥</title>
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ふぁんしーあいらんど｜ホラートロッコ</title>
+
 <style>
-body{margin:0;font-family:sans-serif;background:#111;color:#fff;display:flex;flex-direction:column;align-items:center;}
-#game{width:100%;max-width:600px;height:450px;border:2px solid #fff;position:relative;background:#222;margin-top:10px;overflow:hidden;}
-#ui{position:absolute;top:10px;left:10px;z-index:10;width:95%;}
-#hpBar,#timerBar{width:100%;height:20px;background:#555;margin-bottom:5px;border-radius:5px;overflow:hidden;}
-#hpFill,#timerFill{width:100%;height:100%;transition:width 0.2s,background 0.2s;}
-#message{margin-top:5px;white-space:pre-line;font-size:14px;min-height:50px;}
-.door,.item,.stairs,.enemy,.boss{width:80px;height:120px;background:#888;position:absolute;bottom:20px;cursor:pointer;text-align:center;line-height:120px;font-weight:bold;border-radius:5px;transition:all 0.5s;}
-.enemy{background:#b00;color:#fff;}
-.boss{background:#800080;color:#fff;width:120px;height:150px;line-height:150px;left:50%;transform:translateX(-50%);}
-#openDoorBtn,#pickupBtn,#climbBtn{position:absolute;bottom:180px;left:50%;transform:translateX(-50%);padding:10px 20px;font-size:16px;display:none;background:#444;border:1px solid #fff;border-radius:5px;}
-#inventory{position:absolute;bottom:0;width:100%;display:flex;justify-content:flex-start;overflow-x:auto;background:#222;border-top:2px solid #fff;padding:5px 0;}
-.invItem{min-width:50px;height:50px;margin-left:5px;background:#555;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:12px;cursor:pointer;}
-button{font-size:16px;margin:3px;}
-#difficultyButtons{margin-top:10px;}
+html,body{margin:0;background:#000;overflow:hidden}
+#g{position:fixed;inset:0;background:#050505}
+.e{position:absolute;width:48px;height:68px;background:#400}
+.s{background:#024}
+.h{position:absolute;top:-5px;left:0;height:4px;background:red}
+#c{position:fixed;width:22px;height:22px;border:2px solid #f33;border-radius:50%;pointer-events:none}
+#u{position:fixed;left:6px;bottom:6px;color:#fff;font-size:12px}
 </style>
-</head>
-<body>
 
-<div id="game">
-  <div id="ui">
-    <div id="hpBar"><div id="hpFill"></div></div>
-    <div id="timerBar"><div id="timerFill"></div></div>
-    <div id="message">難易度を選択してください</div>
-  </div>
-  <button id="openDoorBtn">開く</button>
-  <button id="pickupBtn">拾う</button>
-  <button id="climbBtn">上る</button>
-</div>
-
-<div id="inventory"></div>
-
-<div id="difficultyButtons">
-  <button onclick="startGame('easy')">簡単</button>
-  <button onclick="startGame('normal')">普通</button>
-  <button onclick="startGame('hard')">ハード</button>
+<div id="g"></div>
+<div id="c"></div>
+<div id="u">
+<span id="a"></span>/<span id="r"></span> ❤️<span id="l"></span>
 </div>
 
 <script>
-let playerHP=300,difficulty,currentDoor=1,timer,timerMax;
-let inventory=[],doors=[],items=[],stairs=[],enemies=[];
-let selectedDoor=null,selectedItem=null,selectedStair=null;
-let timerInterval;
-let boss=null;
+let g=document.getElementById("g"),
+c=document.getElementById("c"),
+aE=a,rE=r,lE=l,
+a=15,r=100,l=3,ch=0;
 
-// HP更新
-function updateHP(amount){
-  playerHP=Math.max(0,playerHP+amount);
-  document.getElementById('hpFill').style.width=(playerHP/300*100)+'%';
-  if(playerHP<=0) showMessage('💀ゲームオーバー');
+function u(){aE.textContent=a;rE.textContent=r;lE.textContent=l}
+u();
+
+onmousemove=e=>{
+ c.style.left=e.clientX-11+"px";
+ c.style.top=e.clientY-11+"px";
+};
+
+onmousedown=_=>ch=Date.now();
+onmouseup=_=>ch=0;
+
+onkeydown=e=>{
+ if(e.key=="r"&&r){
+  let n=Math.min(15-a,r);
+  a+=n;r-=n;u();
+ }
+};
+
+function sp(){
+ if(l<=0)return;
+ let e=document.createElement("div"),
+ safe=Math.random()<0.2;
+ e.className="e"+(safe?" s":"");
+ let mh=2+Math.random()*5|0;
+ e.h=mh;
+
+ let h=document.createElement("div");
+ h.className="h";
+ h.style.width="100%";
+ e.appendChild(h);
+
+ e.style.left=Math.random()*(innerWidth-48)+"px";
+ e.style.top=Math.random()*(innerHeight*0.5)+"px";
+
+ e.onclick=v=>{
+  v.stopPropagation();
+  if(!a||l<=0)return;
+
+  let d=1;
+  if(ch&&Date.now()-ch>=650)d=3;   // チャージ弾
+  if(v.offsetY<18)d*=2;           // ヘッドショット
+
+  a--;
+  if(!safe){
+   e.h-=d;
+   h.style.width=e.h/mh*100+"%";
+   if(e.h<=0)e.remove();
+  }else{
+   l--; // ⑥の敵：撃つとダメージ
+  }
+  u();
+ };
+
+ if(!safe){
+  setTimeout(()=>{
+   if(e.isConnected){
+    l--;u();e.remove();
+   }
+  },2200);
+ }
+
+ g.appendChild(e);
 }
 
-// メッセージ
-function showMessage(msg){document.getElementById('message').innerText=msg;}
-
-// クリア要素
-function clearElements(arr){arr.forEach(e=>e.remove());arr.length=0;}
-
-// ドア生成
-function createDoors(indices){
-  clearElements(doors);
-  let game=document.getElementById('game');
-  indices.forEach((i,idx)=>{
-    let d=document.createElement('div');
-    d.className='door';
-    d.id='door'+i;
-    d.innerText='ドア'+i;
-    d.style.left=(50+idx*150)+'px';
-    game.appendChild(d);
-    doors.push(d);
-    d.onclick=()=>{selectedDoor=d;document.getElementById('openDoorBtn').style.display='block';};
-  });
-}
-
-// アイテム生成
-function spawnItem(name){
-  let game=document.getElementById('game');
-  let item=document.createElement('div');
-  item.className='item';
-  item.innerText=name;
-  item.style.left=Math.random()*400+'px';
-  game.appendChild(item);
-  items.push(item);
-  item.onclick=()=>{selectedItem=item;document.getElementById('pickupBtn').style.display='block';document.getElementById('pickupBtn').innerText='拾う: '+name;};
-}
-
-// 階段生成
-function spawnStair(){
-  let game=document.getElementById('game');
-  let stair=document.createElement('div');
-  stair.className='stairs';
-  stair.innerText='階段';
-  stair.style.left=Math.random()*400+'px';
-  game.appendChild(stair);
-  stairs.push(stair);
-  stair.onclick=()=>{selectedStair=stair;document.getElementById('climbBtn').style.display='block';};
-}
-
-// 敵生成
-function spawnEnemy(name='タイマーアタック敵'){
-  let game=document.getElementById('game');
-  let enemy=document.createElement('div');
-  enemy.className='enemy';
-  enemy.innerText=name;
-  enemy.style.left=Math.random()*400+'px';
-  game.appendChild(enemy);
-  enemies.push(enemy);
-  enemy.onclick=()=>{
-    let dmg=(name.includes('アンブッシュ')||name.includes('ラッシュ'))?100:
-            name.includes('シーク')?playerHP:
-            name.includes('トラップ')?45:5;
-    showMessage(name+'に触れた! '+dmg+'ダメージ');
-    updateHP(-dmg);
-    enemy.remove();
-  };
-}
-
-// ボス生成
-function spawnBoss(){
-  if(boss) boss.remove();
-  let game=document.getElementById('game');
-  boss=document.createElement('div');
-  boss.className='boss';
-  boss.innerText='ボス';
-  boss.style.top='50px';
-  game.appendChild(boss);
-  moveBoss();
-}
-
-// ボスアニメ
-function moveBoss(){
-  if(!boss) return;
-  let left=parseInt(boss.style.left||300);
-  let direction=Math.random()<0.5?1:-1;
-  boss.style.left=(left+direction*20)+'px';
-  setTimeout(moveBoss,500);
-}
-
-// ドアボタン
-document.getElementById('openDoorBtn').onclick=()=>{
-  if(selectedDoor){selectedDoor.remove();selectedDoor=null;document.getElementById('openDoorBtn').style.display='none';nextDoor();}
-}
-
-// アイテムボタン
-document.getElementById('pickupBtn').onclick=()=>{
-  if(selectedItem){
-    let name=selectedItem.innerText;inventory.push(name);updateInventory();selectedItem.remove();selectedItem=null;document.getElementById('pickupBtn').style.display='none';showMessage(name+'を拾った!');}
-}
-
-// 階段ボタン
-document.getElementById('climbBtn').onclick=()=>{
-  if(selectedStair){selectedStair.remove();selectedStair=null;document.getElementById('climbBtn').style.display='none';showMessage('階段を上った!');spawnRoom();}
-}
-
-// インベントリ更新
-function updateInventory(){
-  let inv=document.getElementById('inventory');inv.innerHTML='';
-  inventory.forEach((item,i)=>{
-    let div=document.createElement('div');
-    div.className='invItem';
-    div.innerText=item;
-    div.onclick=()=>{
-      showMessage(item+'を使用!');
-      if(item=='回復薬') updateHP(50);
-      inventory.splice(i,1);updateInventory();
-    };
-    inv.appendChild(div);
-  });
-}
-
-// ゲーム開始
-function startGame(mode){
-  difficulty=mode;
-  document.getElementById('difficultyButtons').style.display='none';
-  showMessage('エレベーター落下中...');
-  setTimeout(()=>startTutorial(),2000);
-}
-
-// チュートリアル
-function startTutorial(){
-  showMessage('チュートリアル開始\nドア1: 鍵を取る');
-  createDoors([1,2,3]);
-}
-
-// チュートリアル進行
-function nextDoor(){
-  currentDoor++;
-  if(currentDoor==2) showMessage('ドア2: しゃがむチュートリアル');
-  else if(currentDoor==3) showMessage('ドア3: 隠れるチュートリアル');
-  else if(currentDoor>=4) startMainGame();
-}
-
-// 本番ゲーム
-function startMainGame(){
-  showMessage('本番開始! ドア5以降タイマーアタック登場');
-  spawnRoom();
-  startTimerAttack();
-  setTimeout(spawnBoss,5000);
-}
-
-// 部屋生成
-function spawnRoom(){
-  createDoors([1]);
-  spawnItem('回復薬');
-  spawnItem('スピードアップ');
-  spawnItem('シールド');
-  spawnItem('鍵');
-  spawnStair();
-  spawnEnemy('アンブッシュ');
-  spawnEnemy('ラッシュ');
-  if(Math.random()<0.3) spawnEnemy('シーク');
-  if(Math.random()<0.5) spawnEnemy('トラップ');
-  if(Math.random()<0.7) spawnEnemy('クモ');
-}
-
-// タイマーアタック
-function startTimerAttack(){
-  timerMax=(difficulty=='easy')?35:(difficulty=='normal')?25:20;
-  timer=timerMax;
-  let fill=document.getElementById('timerFill');
-  timerInterval=setInterval(()=>{
-    timer-=0.1;
-    let pct=timer/timerMax*100;
-    if(pct>60) fill.style.background='green';
-    else if(pct>30) fill.style.background='yellow';
-    else if(pct>10) fill.style.background='orange';
-    else if(pct>0) fill.style.background='red';
-    else{
-      fill.style.background='gray';
-      showMessage('☠️タイマーアタック! 75ダメージ');
-      updateHP(-75);
-      timer=timerMax;
-    }
-    fill.style.width=Math.max(0,pct)+'%';
-  },100);
-}
+setInterval(sp,1700);
 </script>
-</body>
-</html>
