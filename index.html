@@ -90,6 +90,93 @@ window.addEventListener("load", function(){
     },1000);
 
 });
+<script>
+window.addEventListener("load", function(){
+
+    const videoArea = document.getElementById("video");
+
+    const box = document.createElement("div");
+    box.className = "video-box";
+
+    box.innerHTML = `
+        <div>
+            ⏳ 更新まで <span id="timer">20</span> 秒
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div id="thumbnail" 
+             style="height:200px;background:#ddd;margin-top:20px;border-radius:10px;background-size:cover;background-position:center;">
+        </div>
+
+        <h3 id="videoTitle" style="margin-top:20px;">
+            読み込み中...
+        </h3>
+
+        <p id="videoInfo">
+            再生回数: --- ｜ 投稿日: ----
+        </p>
+    `;
+
+    videoArea.appendChild(box);
+
+    const titles = [
+        "🔥 Roblox DOORS 最速攻略！",
+        "👀 トレンドニュース速報",
+        "💥 神アップデート解説",
+        "🎮 新作ゲームレビュー",
+        "🚀 今週の話題まとめ"
+    ];
+
+    const images = [
+        "https://picsum.photos/600/300?random=1",
+        "https://picsum.photos/600/300?random=2",
+        "https://picsum.photos/600/300?random=3",
+        "https://picsum.photos/600/300?random=4",
+        "https://picsum.photos/600/300?random=5"
+    ];
+
+    const timer = document.getElementById("timer");
+    const progress = document.getElementById("progress");
+    const thumbnail = document.getElementById("thumbnail");
+    const title = document.getElementById("videoTitle");
+    const info = document.getElementById("videoInfo");
+
+    let timeLeft = 20;
+
+    function changeContent(){
+
+        const randomIndex = Math.floor(Math.random() * titles.length);
+
+        title.textContent = titles[randomIndex];
+        thumbnail.style.backgroundImage = `url(${images[randomIndex]})`;
+
+        const views = Math.floor(Math.random() * 10000 + 1000);
+        info.textContent = `再生回数: ${views} 回 ｜ 投稿日: 今日`;
+    }
+
+    changeContent();
+
+    const interval = setInterval(()=>{
+
+        timeLeft--;
+
+        const percent = ((20 - timeLeft)/20)*100;
+        progress.style.width = Math.min(percent,100) + "%";
+        timer.textContent = timeLeft;
+
+        if(timeLeft <= 0){
+            timeLeft = 20;
+            progress.style.width = "0%";
+            timer.textContent = timeLeft;
+            changeContent();
+        }
+
+    },1000);
+
+});
 </script>
 
 </body>
