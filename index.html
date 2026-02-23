@@ -409,4 +409,111 @@ window.addEventListener("load", function(){
     startTimer();
 
 })();
+</script><script>
+/* ===============================
+   🔥 完全クリーン再構築エンジン
+   =============================== */
+
+(function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    /* ===== 成功メッセージ全削除 ===== */
+    document.querySelectorAll("*").forEach(el=>{
+        if(el.textContent.includes("成功")){
+            el.remove();
+        }
+    });
+
+    /* ===== 既存の追加ボックス削除 ===== */
+    videoArea.querySelectorAll("div").forEach(div=>{
+        if(div.style.border?.includes("red") || 
+           div.style.border?.includes("blue")){
+            div.remove();
+        }
+    });
+
+    /* ===== 進行バー類削除 ===== */
+    videoArea.querySelectorAll("#progressX, #progress2, #progress, #mainProgress")
+    .forEach(el=>el.remove());
+
+    /* ===== 新しいボックス作成 ===== */
+    const box = document.createElement("div");
+    box.id = "ultimateBox";
+
+    box.style.border = "2px solid red";
+    box.style.padding = "20px";
+    box.style.marginTop = "20px";
+    box.style.borderRadius = "15px";
+    box.style.maxWidth = "600px";
+    box.style.background = "#fff";
+
+    box.innerHTML = `
+        <div style="margin-bottom:10px;font-weight:bold;">
+            ⏳ 更新まで <span id="mainTimer">20</span> 秒
+        </div>
+
+        <div style="
+            width:100%;
+            height:10px;
+            background:#eee;
+            border-radius:20px;
+            overflow:hidden;
+        ">
+            <div id="mainProgress" style="
+                height:100%;
+                width:0%;
+                background:red;
+                transition:width 0.4s;
+            "></div>
+        </div>
+
+        <div style="
+            height:200px;
+            background:#ddd;
+            margin-top:20px;
+            border-radius:10px;
+        "></div>
+
+        <h3 style="margin-top:20px;">最新動画タイトル（仮）</h3>
+        <p>再生回数: --- ｜ 投稿日: ----</p>
+    `;
+
+    videoArea.appendChild(box);
+
+    const timer = document.getElementById("mainTimer");
+    const progress = document.getElementById("mainProgress");
+
+    let timeLeft = 20;
+    let interval;
+
+    function start(){
+
+        clearInterval(interval);
+
+        timeLeft = 20;
+        progress.style.width = "0%";
+        timer.textContent = timeLeft;
+
+        interval = setInterval(()=>{
+
+            timeLeft--;
+
+            const percent = ((20 - timeLeft)/20)*100;
+            progress.style.width = Math.min(percent,100) + "%";
+            timer.textContent = timeLeft;
+
+            if(timeLeft <= 0){
+                clearInterval(interval);
+                timer.textContent = "更新中...";
+                setTimeout(start,2000);
+            }
+
+        },1000);
+    }
+
+    start();
+
+})();
 </script>
