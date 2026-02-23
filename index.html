@@ -313,4 +313,100 @@ window.addEventListener("load", function(){
 .progress-container{
     overflow:hidden;
 }
-</style>
+</style><script>
+/* ===============================
+   🔥 Ryuten Portal 安定版エンジン
+   =============================== */
+
+(function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    // ===== 不要メッセージ削除 =====
+    document.querySelectorAll("p").forEach(p=>{
+        if(p.textContent.includes("成功")){
+            p.remove();
+        }
+    });
+
+    // ===== 既存の暴走ゲージ削除 =====
+    const oldProgress = document.querySelectorAll("#progressX, #progress2, #progress");
+    oldProgress.forEach(el=>{
+        el.style.width = "0%";
+    });
+
+    // ===== 新しいボックス作成 =====
+    const box = document.createElement("div");
+    box.style.border = "2px solid red";
+    box.style.padding = "20px";
+    box.style.marginTop = "20px";
+    box.style.borderRadius = "15px";
+    box.style.maxWidth = "600px";
+    box.style.background = "#fff";
+
+    box.innerHTML = `
+        <div style="margin-bottom:10px;font-weight:bold;">
+            ⏳ 更新まで <span id="mainTimer">20</span> 秒
+        </div>
+
+        <div style="
+            width:100%;
+            height:10px;
+            background:#eee;
+            border-radius:20px;
+            overflow:hidden;
+        ">
+            <div id="mainProgress" style="
+                height:100%;
+                width:0%;
+                background:red;
+                transition:width 0.5s;
+            "></div>
+        </div>
+
+        <div style="
+            height:200px;
+            background:#ddd;
+            margin-top:20px;
+            border-radius:10px;
+        "></div>
+
+        <h3 style="margin-top:20px;">最新動画タイトル（仮）</h3>
+        <p>再生回数: --- ｜ 投稿日: ----</p>
+    `;
+
+    videoArea.appendChild(box);
+
+    const timer = document.getElementById("mainTimer");
+    const progress = document.getElementById("mainProgress");
+
+    let timeLeft = 20;
+
+    function startTimer(){
+
+        timeLeft = 20;
+        timer.textContent = timeLeft;
+        progress.style.width = "0%";
+
+        const interval = setInterval(()=>{
+
+            timeLeft--;
+
+            const percent = ((20 - timeLeft)/20)*100;
+            progress.style.width = Math.min(percent,100) + "%";
+            timer.textContent = timeLeft;
+
+            if(timeLeft <= 0){
+                clearInterval(interval);
+                timer.textContent = "更新中...";
+                setTimeout(startTimer,2000); // 2秒後に再スタート
+            }
+
+        },1000);
+    }
+
+    startTimer();
+
+})();
+</script>
