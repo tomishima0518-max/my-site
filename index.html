@@ -142,6 +142,49 @@ window.addEventListener("load", function(){
 
 });
 </script>
+<script>
+const API_KEY = "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY";
+const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
 
+async function loadVideos(){
+
+    const grid = document.getElementById("videoGrid");
+
+    const searchUrl =
+    `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=3&type=video`;
+
+    const searchRes = await fetch(searchUrl);
+    const searchData = await searchRes.json();
+
+    const videoIds = searchData.items.map(v=>v.id.videoId).join(",");
+
+    const statsUrl =
+    `https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${videoIds}&part=statistics`;
+
+    const statsRes = await fetch(statsUrl);
+    const statsData = await statsRes.json();
+
+    grid.innerHTML = "";
+
+    searchData.items.forEach((item,index)=>{
+
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.high.url;
+        const views = statsData.items[index].statistics.viewCount;
+
+        grid.innerHTML += `
+        <div class="card">
+            <img src="${thumbnail}">
+            <h3>${title}</h3>
+            <p>再生回数: ${Number(views).toLocaleString()} 回</p>
+            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">▶ 見る</a>
+        </div>
+        `;
+    });
+}
+
+loadVideos();
+</script>
 </body>
 </html>
