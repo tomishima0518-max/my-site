@@ -20,21 +20,11 @@ header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#44
 #videoModal iframe{ width:800px; height:450px; margin-bottom:10px;}
 #commentSection{ width:800px; max-height:150px; overflow-y:auto; background:#111; padding:10px; border-radius:5px;}
 #commentSection p{ margin:2px 0;}
-#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:10000;}
-#nameInputContainer input{ padding:10px; font-size:16px; margin-bottom:10px; width:250px;}
-#nameInputContainer button{ padding:10px 20px; font-size:16px; cursor:pointer;}
 .channel-btn{ display:inline-block; padding:5px 10px; margin-top:5px; background:red; color:#fff; border:none; cursor:pointer; text-decoration:none;}
 .innerTabContent{ display:none; margin:10px;}
 </style>
 </head>
 <body>
-
-<!-- 名前入力画面 -->
-<div id="nameInputContainer">
-  <h2>名前を入力してください</h2>
-  <input type="text" id="userNameInput" placeholder="名前">
-  <button id="startBtn">開始</button>
-</div>
 
 <header>
   <button class="tabBtn activeTab" data-tab="info">情報</button>
@@ -81,8 +71,9 @@ header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#44
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, addDoc, onSnapshot, serverTimestamp, getDocs, query } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, addDoc, onSnapshot, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+// Firebase 設定
 const firebaseConfig = {
   apiKey: "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY",
   authDomain: "YOUR_FIREBASE_AUTHDOMAIN",
@@ -94,21 +85,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let userName, userId;
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  const startBtn=document.getElementById("startBtn");
-  startBtn.addEventListener("click", async()=>{
-    const name=document.getElementById("userNameInput").value.trim();
-    if(!name) return alert("名前を入力してください");
-    userName=name;
-    userId=crypto.randomUUID();
-    await setDoc(doc(db,"users",userId),{name:userName,subscribed:false,createdAt:serverTimestamp()});
-    document.getElementById("nameInputContainer").style.display="none";
-    loadYouTubeVideos();
-    initSubscribersUpdater();
-  });
-});
+// ユーザー名自動生成
+const randomId=Math.floor(Math.random()*1000000).toString().padStart(6,"0");
+let userName=`Player#abc${randomId}`;
+const officialName="リュウテン"; // 作者固定
+let userId=crypto.randomUUID();
 
 // タブ切替
 document.querySelectorAll(".tabBtn").forEach(btn=>{
@@ -168,6 +149,7 @@ async function loadYouTubeVideos(){
       `;
       container.appendChild(card);
 
+      // コメント送信
       document.getElementById(`sendComment-${videoId}`).addEventListener("click", async()=>{
         const text=document.getElementById(`commentInput-${videoId}`).value.trim();
         if(!text) return;
@@ -176,6 +158,7 @@ async function loadYouTubeVideos(){
         document.getElementById(`commentInput-${videoId}`).value="";
       });
 
+      // コメントリアルタイム表示
       const colRef=collection(db,"comments",videoId,"items");
       onSnapshot(colRef,snapshot=>{
         const preview=document.getElementById(`commentsPreview-${videoId}`);
@@ -263,6 +246,14 @@ async function updateSubscribers(){
 function initSubscribersUpdater(){
   setInterval(updateSubscribers,1000);
 }
+
+// 初期化
+(async()=>{
+  // Firebaseにユーザー登録
+  await setDoc(doc(db,"users",userId),{name:userName,subscribed:false,createdAt:serverTimestamp()});
+  loadYouTubeVideos();
+  initSubscribersUpdater();
+})();
 
 subscribeBtn.addEventListener("click", async()=>{
   await setDoc(doc(db,"users",userId),{name:userName,subscribed:true},{merge:true});
