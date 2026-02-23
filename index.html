@@ -203,4 +203,20 @@ window.addEventListener("load", function(){
 
 });
 
+</script><script>
+// ===== 即実行版 =====
+(function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    const newBox = document.createElement("div");
+    newBox.style.border = "2px solid blue";
+    newBox.style.padding = "15px";
+    newBox.style.marginTop = "20px";
+    newBox.textContent = "青ボックス出たら成功🔥";
+
+    videoArea.appendChild(newBox);
+
+})();
 </script>
