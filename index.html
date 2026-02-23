@@ -12,14 +12,15 @@ header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#44
 #videoGrid{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px;}
 .card{ background:#333; border-radius:10px; padding:10px; width:250px; position:relative;}
 .card img{ width:100%; border-radius:10px;}
-.videoWrapper{ position:relative; width:800px; height:450px; margin:0 auto;}
+.videoWrapper{ position:relative; width:100%; height:0; padding-bottom:56.25%; margin:0 auto;}
+.videoWrapper iframe{ position:absolute; width:100%; height:100%; top:0; left:0;}
 .danmakuLayer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden;}
 .danmaku{ position:absolute; white-space:nowrap; color:#fff; font-weight:bold; text-shadow:1px 1px 2px #000;}
 #videoModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; flex-direction:column; z-index:2000;}
 #videoModal iframe{ width:800px; height:450px; margin-bottom:10px;}
 #commentSection{ width:800px; max-height:150px; overflow-y:auto; background:#111; padding:10px; border-radius:5px;}
 #commentSection p{ margin:2px 0;}
-#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:3000;}
+#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:10000;}
 #nameInputContainer input{ padding:10px; font-size:16px; margin-bottom:10px; width:250px;}
 #nameInputContainer button{ padding:10px 20px; font-size:16px; cursor:pointer;}
 .channel-btn{ display:inline-block; padding:5px 10px; margin-top:5px; background:red; color:#fff; border:none; cursor:pointer; text-decoration:none;}
@@ -45,7 +46,6 @@ header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#44
   <div id="infoTab" class="tabContent">こんにちは！サイトへようこそ！</div>
   
   <div id="videosTab" class="tabContent">
-    <!-- 内部タブ -->
     <div class="innerTabs">
       <button class="innerTabBtn activeTab" data-inner="popular">人気順</button>
       <button class="innerTabBtn" data-inner="latest">最新</button>
@@ -73,106 +73,123 @@ header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#44
 <div style="text-align:center; margin:20px;">
   <div class="g-ytsubscribe" data-channelid="UCmZY34Ev1I5FIcDC5tdXeDg" data-layout="default" data-count="default"></div>
   <p>サイト内登録者数: <span id="siteSubscribers">0</span></p>
+  <button id="subscribeBtn">登録</button>
+  <button id="unsubscribeBtn">キャンセル</button>
 </div>
+
 <script src="https://apis.google.com/js/platform.js"></script>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, addDoc, onSnapshot, serverTimestamp, getDocs, query } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY",
   authDomain: "YOUR_FIREBASE_AUTHDOMAIN",
   projectId: "YOUR_FIREBASE_PROJECTID",
-  storageBucket: "YOUR_FIREBASE_BUCKET",
+  storageBucket: "YOUR_FIREBASE_STORAGEBUCKET",
   messagingSenderId: "YOUR_FIREBASE_MESSAGINGID",
   appId: "YOUR_FIREBASE_APPID"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 let userName, userId;
 
-// 名前入力開始
-document.getElementById("startBtn").addEventListener("click", async ()=>{
-  const name = document.getElementById("userNameInput").value.trim();
-  if(!name) return alert("名前を入力してください");
-  userName=name;
-  userId=crypto.randomUUID();
-  await setDoc(doc(db,"users",userId),{name:userName,subscribed:false,createdAt:serverTimestamp()});
-  document.getElementById("nameInputContainer").style.display="none";
-});
-
-// メインタブ切り替え
-const tabBtns=document.querySelectorAll(".tabBtn");
-tabBtns.forEach(btn=>btn.addEventListener("click",()=>{
-  tabBtns.forEach(b=>b.classList.remove("activeTab"));
-  btn.classList.add("activeTab");
-  document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
-  document.getElementById(btn.dataset.tab+"Tab").style.display="block";
-}));
-
-// 内部タブ切替
-const innerBtns=document.querySelectorAll(".innerTabBtn");
-innerBtns.forEach(btn=>btn.addEventListener("click",()=>{
-  innerBtns.forEach(b=>b.classList.remove("activeTab"));
-  btn.classList.add("activeTab");
-  document.querySelectorAll(".innerTabContent").forEach(c=>c.style.display="none");
-  document.getElementById(btn.dataset.inner).style.display="block";
-}));
-
-// 動画データ
-const videosData=[
-  {id:"d1",title:"🔥 Roblox DOORS 最速攻略！",thumbnail:"https://picsum.photos/250/140?random=1",views:1234,likes:456},
-  {id:"d2",title:"👀 トレンドニュース速報",thumbnail:"https://picsum.photos/250/140?random=2",views:2345,likes:123},
-  {id:"d3",title:"💥 神アップデート解説",thumbnail:"https://picsum.photos/250/140?random=3",views:3456,likes:789}
-];
-
-const categories=["popular","latest","oldest"];
-categories.forEach(cat=>{
-  const container=document.getElementById(cat);
-  videosData.forEach(video=>{
-    const card=document.createElement("div");
-    card.className="card";
-    card.innerHTML=`
-      <div class="videoWrapper">
-        <img src="${video.thumbnail}">
-        <div class="danmakuLayer" id="danmakuLayer-${video.id}"></div>
-      </div>
-      <h3>${video.title}</h3>
-      <p>再生回数: ${video.views} ｜ 👍 ${video.likes}</p>
-      <div id="commentsPreview-${video.id}"></div>
-      <input type="text" placeholder="コメントを入力" id="commentInput-${video.id}">
-      <button id="sendComment-${video.id}">送信</button>
-      <button onclick="openModal('${video.id}')">▶ 見る</button>
-    `;
-    container.appendChild(card);
-
-    // コメント送信
-    document.getElementById(`sendComment-${video.id}`).addEventListener("click", async()=>{
-      const input=document.getElementById(`commentInput-${video.id}`);
-      const text=input.value.trim();
-      if(!text) return;
-      const colRef=collection(db,"comments",video.id,"items");
-      await addDoc(colRef,{name:userName,text,createdAt:serverTimestamp()});
-      input.value="";
-    });
-
-    // コメントリアルタイム表示（一覧）
-    const colRef=collection(db,"comments",video.id,"items");
-    onSnapshot(colRef,snapshot=>{
-      const preview=document.getElementById(`commentsPreview-${video.id}`);
-      preview.innerHTML="";
-      snapshot.docs.slice(-3).forEach(doc=>{
-        const data=doc.data();
-        preview.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
-      });
-    });
+document.addEventListener("DOMContentLoaded", ()=>{
+  const startBtn=document.getElementById("startBtn");
+  startBtn.addEventListener("click", async()=>{
+    const name=document.getElementById("userNameInput").value.trim();
+    if(!name) return alert("名前を入力してください");
+    userName=name;
+    userId=crypto.randomUUID();
+    await setDoc(doc(db,"users",userId),{name:userName,subscribed:false,createdAt:serverTimestamp()});
+    document.getElementById("nameInputContainer").style.display="none";
+    loadYouTubeVideos();
+    initSubscribersUpdater();
   });
 });
 
-// モーダル再生
+// タブ切替
+document.querySelectorAll(".tabBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tabBtn").forEach(b=>b.classList.remove("activeTab"));
+    btn.classList.add("activeTab");
+    document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
+    document.getElementById(btn.dataset.tab+"Tab").style.display="block";
+  });
+});
+document.querySelectorAll(".innerTabBtn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".innerTabBtn").forEach(b=>b.classList.remove("activeTab"));
+    btn.classList.add("activeTab");
+    document.querySelectorAll(".innerTabContent").forEach(c=>c.style.display="none");
+    document.getElementById(btn.dataset.inner).style.display="block";
+  });
+});
+
+// YouTube API
+const API_KEY="AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY";
+const CHANNEL_ID="UCmZY34Ev1I5FIcDC5tdXeDg";
+async function loadYouTubeVideos(){
+  const searchUrl=`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=10&type=video`;
+  const searchRes=await fetch(searchUrl);
+  const searchData=await searchRes.json();
+  const videoIds=searchData.items.map(v=>v.id.videoId).join(",");
+  const statsUrl=`https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${videoIds}&part=statistics`;
+  const statsRes=await fetch(statsUrl);
+  const statsData=await statsRes.json();
+
+  ["popular","latest","oldest"].forEach(cat=>{
+    const container=document.getElementById(cat);
+    container.innerHTML="";
+    let videosSorted=[...searchData.items];
+    if(cat==="popular") videosSorted.sort((a,b)=>parseInt(statsData.items.find(v=>v.id===b.id.videoId).statistics.viewCount)-parseInt(statsData.items.find(v=>v.id===a.id.videoId).statistics.viewCount));
+    if(cat==="oldest") videosSorted.reverse();
+    videosSorted.forEach((item,index)=>{
+      const videoId=item.id.videoId;
+      const title=item.snippet.title;
+      const thumb=item.snippet.thumbnails.high.url;
+      const views=statsData.items[index].statistics.viewCount;
+      const likes=statsData.items[index].statistics.likeCount||0;
+      const card=document.createElement("div");
+      card.className="card";
+      card.innerHTML=`
+        <div class="videoWrapper">
+          <img src="${thumb}">
+          <div class="danmakuLayer" id="danmakuLayer-${videoId}"></div>
+        </div>
+        <h3>${title}</h3>
+        <p>再生回数: ${Number(views).toLocaleString()} ｜ 👍 ${Number(likes).toLocaleString()}</p>
+        <div id="commentsPreview-${videoId}"></div>
+        <input type="text" placeholder="コメントを入力" id="commentInput-${videoId}">
+        <button id="sendComment-${videoId}">送信</button>
+        <button onclick="openModal('${videoId}')">▶ 見る</button>
+      `;
+      container.appendChild(card);
+
+      document.getElementById(`sendComment-${videoId}`).addEventListener("click", async()=>{
+        const text=document.getElementById(`commentInput-${videoId}`).value.trim();
+        if(!text) return;
+        const colRef=collection(db,"comments",videoId,"items");
+        await addDoc(colRef,{name:userName,text,createdAt:serverTimestamp()});
+        document.getElementById(`commentInput-${videoId}`).value="";
+      });
+
+      const colRef=collection(db,"comments",videoId,"items");
+      onSnapshot(colRef,snapshot=>{
+        const preview=document.getElementById(`commentsPreview-${videoId}`);
+        preview.innerHTML="";
+        snapshot.docs.slice(-3).forEach(doc=>{
+          const data=doc.data();
+          preview.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
+        });
+      });
+    });
+  });
+}
+
+// モーダル＋弾幕
 const modal=document.getElementById("videoModal");
 const iframe=document.getElementById("modalIframe");
 const danmakuLayer=document.getElementById("danmakuLayer");
@@ -183,8 +200,6 @@ const danmakuSend=document.getElementById("danmakuSend");
 window.openModal=async function(videoId){
   modal.style.display="flex";
   iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1`;
-
-  // コメント表示
   const colRef=collection(db,"comments",videoId,"items");
   onSnapshot(colRef,snapshot=>{
     commentSection.innerHTML="";
@@ -196,7 +211,6 @@ window.openModal=async function(videoId){
       }
     });
   });
-
   danmakuSend.onclick=async()=>{
     const text=danmakuInput.value.trim();
     if(!text) return;
@@ -211,7 +225,6 @@ document.getElementById("closeModal").addEventListener("click",()=>{
   danmakuLayer.innerHTML="";
 });
 
-// 弾幕関数
 function showDanmaku(text){
   const span=document.createElement("span");
   span.className="danmaku";
@@ -232,6 +245,31 @@ function showDanmaku(text){
   }
   requestAnimationFrame(animate);
 }
+
+// サイト内登録者数管理
+const siteSubscribers=document.getElementById("siteSubscribers");
+const subscribeBtn=document.getElementById("subscribeBtn");
+const unsubscribeBtn=document.getElementById("unsubscribeBtn");
+
+async function updateSubscribers(){
+  const usersSnapshot=await getDocs(collection(db,"users"));
+  let count=0;
+  usersSnapshot.forEach(doc=>{
+    if(doc.data().subscribed) count++;
+  });
+  siteSubscribers.textContent=count;
+}
+
+function initSubscribersUpdater(){
+  setInterval(updateSubscribers,1000);
+}
+
+subscribeBtn.addEventListener("click", async()=>{
+  await setDoc(doc(db,"users",userId),{name:userName,subscribed:true},{merge:true});
+});
+unsubscribeBtn.addEventListener("click", async()=>{
+  await setDoc(doc(db,"users",userId),{name:userName,subscribed:false},{merge:true});
+});
 </script>
 </body>
 </html>
