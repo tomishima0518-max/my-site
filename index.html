@@ -6,207 +6,222 @@
 <title>Ryuten Portal</title>
 
 <style>
-body{
-    font-family:sans-serif;
-    background:#f9f9f9;
-    padding:20px;
-}
-
-h1{
-    text-align:center;
-}
-
-ul{
-    list-style:none;
-    padding:0;
-    display:flex;
-    gap:10px;
-    cursor:pointer;
-}
-
-ul li{
-    padding:8px 14px;
-    background:#eee;
-    border-radius:6px;
-    user-select:none;
-}
-
-ul li.active{
-    background:red;
-    color:#fff;
-}
-
-.video-box{
-    border:3px solid red;
-    padding:20px;
-    border-radius:15px;
-    background:#fff;
-    margin:20px auto;
-    max-width:600px;
-}
-
-.thumbnail{
-    height:220px;
-    margin-top:15px;
-    border-radius:10px;
-    background-size:cover;
-    background-position:center;
-}
-
-.button{
-    display:inline-block;
-    margin-top:10px;
-    padding:8px 14px;
-    background:red;
-    color:#fff;
-    border-radius:6px;
-    text-decoration:none;
-}
-
-.channel-btn{
-    background:green;
-    margin-left:10px;
-}
-
-.card{
-    border:1px solid #ccc;
-    border-radius:10px;
-    padding:10px;
-    margin:15px 0;
-    background:#fff;
-}
-
-.card img{
-    width:100%;
-    border-radius:10px;
-}
+body{ font-family:sans-serif; background:#222; color:#fff; margin:0; padding:0;}
+header{ display:flex; justify-content:center; background:#111; padding:10px;}
+header button{ margin:0 5px; padding:5px 15px; background:#444; color:#fff; border:none; cursor:pointer;}
+.activeTab{ background:red;}
+#videoGrid{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px;}
+.card{ background:#333; border-radius:10px; padding:10px; width:250px; position:relative;}
+.card img{ width:100%; border-radius:10px;}
+.danmakuLayer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden;}
+.danmaku{ position:absolute; white-space:nowrap; color:#fff; font-weight:bold; text-shadow:1px 1px 2px #000;}
+#videoModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; flex-direction:column;}
+#videoModal iframe{ width:800px; height:450px; margin-bottom:10px;}
+#commentSection{ width:800px; max-height:150px; overflow-y:auto; background:#111; padding:10px; border-radius:5px;}
+#commentSection p{ margin:2px 0;}
+#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:1000;}
+#nameInputContainer input{ padding:10px; font-size:16px; margin-bottom:10px; width:250px;}
+#nameInputContainer button{ padding:10px 20px; font-size:16px;}
+.channel-btn{ display:inline-block; padding:5px 10px; margin-top:5px; background:red; color:#fff; border:none; cursor:pointer; text-decoration:none;}
 </style>
 </head>
-
 <body>
 
-<h1>🔥 Ryuten Portal</h1>
-
-<!-- ページ上部タブ -->
-<ul id="mainTabs">
-    <li class="active" data-tab="info">情報</li>
-    <li data-tab="videos">動画＆ショート</li>
-    <li data-tab="other">他</li>
-</ul>
-
-<div id="infoTab">
-    <p>このサイトはリュウテンの最新動画やショートをチェックできるポータルです。</p>
+<!-- 名前入力画面 -->
+<div id="nameInputContainer">
+  <h2>名前を入力してください</h2>
+  <input type="text" id="userNameInput" placeholder="名前">
+  <button id="startBtn">開始</button>
 </div>
 
-<div id="videosTab" style="display:none;">
-    <!-- 内部タブ -->
-    <ul id="videoInnerTabs" style="margin-top:15px;">
-        <li class="active" data-sort="latest">最新</li>
-        <li data-sort="popular">人気順</li>
-        <li data-sort="old">古い</li>
-    </ul>
+<header>
+  <button class="tabBtn activeTab" data-tab="info">情報</button>
+  <button class="tabBtn" data-tab="videos">動画＆ショート</button>
+  <button class="tabBtn" data-tab="other">他</button>
+</header>
 
-    <!-- メイン動画 -->
-    <div class="video-box">
-        <h2>最新動画</h2>
-        <div id="mainThumbnail" class="thumbnail"></div>
-        <h3 id="mainTitle">読み込み中...</h3>
-        <p id="mainViews">再生回数: ---</p>
-        <a id="mainWatch" class="button" target="_blank">▶ 見る</a>
-        <a href="https://www.youtube.com/@%E3%83%AA%E3%83%A5%E3%82%A6%E3%83%86%E3%83%B3%E3%81%AEGame%E5%AE%9F%E6%B3%81" 
-           target="_blank" class="button channel-btn">🏠 チャンネルへ</a>
-    </div>
-
-    <!-- 動画一覧 -->
+<div id="contentArea">
+  <div id="infoTab" class="tabContent">こんにちは！サイトへようこそ！</div>
+  <div id="videosTab" class="tabContent" style="display:none;">
     <div id="videoGrid"></div>
+  </div>
+  <div id="otherTab" class="tabContent" style="display:none;">その他情報</div>
 </div>
 
-<div id="otherTab" style="display:none;">
-    <p>その他リンクや情報をここに表示できます。</p>
+<!-- モーダル動画再生 -->
+<div id="videoModal">
+  <iframe id="modalIframe" src="" frameborder="0" allowfullscreen></iframe>
+  <div class="danmakuLayer" id="danmakuLayer"></div>
+  <div id="commentSection"></div>
+  <input type="text" id="danmakuInput" placeholder="コメントを入力">
+  <button id="danmakuSend">送信</button>
+  <button id="closeModal">閉じる</button>
 </div>
 
-<script>
-const API_KEY = "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY";
-const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
-let videosData = []; // 取得動画データ保持
+<!-- チャンネル登録 -->
+<div style="text-align:center; margin:20px;">
+  <div class="g-ytsubscribe" data-channelid="UCmZY34Ev1I5FIcDC5tdXeDg" data-layout="default" data-count="default"></div>
+  <p>サイト内登録者数: <span id="siteSubscribers">0</span></p>
+</div>
+<script src="https://apis.google.com/js/platform.js"></script>
 
-// ----------------- 上部タブ切替 -----------------
-document.querySelectorAll("#mainTabs li").forEach(tab=>{
-    tab.addEventListener("click", ()=>{
-        document.querySelectorAll("#mainTabs li").forEach(t=>t.classList.remove("active"));
-        tab.classList.add("active");
-        const showId = tab.dataset.tab + "Tab";
-        document.querySelectorAll("#infoTab, #videosTab, #otherTab").forEach(d=>d.style.display="none");
-        document.getElementById(showId).style.display="block";
-    });
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, setDoc, collection, updateDoc, onSnapshot, getDoc, addDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY",
+  authDomain: "YOUR_FIREBASE_AUTHDOMAIN",
+  projectId: "YOUR_FIREBASE_PROJECTID",
+  storageBucket: "YOUR_FIREBASE_BUCKET",
+  messagingSenderId: "YOUR_FIREBASE_MESSAGINGID",
+  appId: "YOUR_FIREBASE_APPID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let userName, userId;
+
+// 名前入力画面
+document.getElementById("startBtn").addEventListener("click", async ()=>{
+  const nameInput = document.getElementById("userNameInput").value.trim();
+  if(!nameInput) return alert("名前を入力してください");
+  userName = nameInput;
+  userId = crypto.randomUUID();
+
+  // Firestoreにユーザー追加
+  await setDoc(doc(db,"users",userId), {name:userName, subscribed:false, createdAt:serverTimestamp()});
+
+  document.getElementById("nameInputContainer").style.display="none";
 });
 
-// ----------------- 内部動画タブ切替 -----------------
-document.querySelectorAll("#videoInnerTabs li").forEach(tab=>{
-    tab.addEventListener("click", ()=>{
-        document.querySelectorAll("#videoInnerTabs li").forEach(t=>t.classList.remove("active"));
-        tab.classList.add("active");
-        sortAndDisplayVideos(tab.dataset.sort);
-    });
+// タブ切り替え
+const tabBtns = document.querySelectorAll(".tabBtn");
+tabBtns.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    tabBtns.forEach(b=>b.classList.remove("activeTab"));
+    btn.classList.add("activeTab");
+    document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
+    document.getElementById(btn.dataset.tab+"Tab").style.display="block";
+  });
 });
 
-// ----------------- YouTube API取得 -----------------
-async function loadYouTube(){
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=20&type=video`;
-    const searchRes = await fetch(searchUrl);
-    const searchData = await searchRes.json();
-    if(!searchData.items) return;
+// ダミー動画データ
+const videosData = [
+  {id:"d1", title:"🔥 Roblox DOORS 最速攻略！", thumbnail:"https://picsum.photos/250/140?random=1", views:1234, likes:456},
+  {id:"d2", title:"👀 トレンドニュース速報", thumbnail:"https://picsum.photos/250/140?random=2", views:2345, likes:123},
+  {id:"d3", title:"💥 神アップデート解説", thumbnail:"https://picsum.photos/250/140?random=3", views:3456, likes:789}
+];
 
-    const videoIds = searchData.items.map(v=>v.id.videoId).join(",");
-    const statsUrl = `https://www.googleapis.com/youtube/v3/videos?key=${API_KEY}&id=${videoIds}&part=statistics,snippet`;
-    const statsRes = await fetch(statsUrl);
-    const statsData = await statsRes.json();
+const videoGrid = document.getElementById("videoGrid");
 
-    videosData = statsData.items.map(item=>({
-        id: item.id,
-        title: item.snippet.title,
-        thumbnail: item.snippet.thumbnails.high.url,
-        views: Number(item.statistics.viewCount),
-        publishedAt: new Date(item.snippet.publishedAt)
-    }));
+videosData.forEach(video=>{
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML=`
+    <img src="${video.thumbnail}">
+    <h3>${video.title}</h3>
+    <p>再生回数: ${video.views.toLocaleString()} 回 ｜ 👍 ${video.likes.toLocaleString()}</p>
+    <div id="commentsPreview-${video.id}"></div>
+    <input type="text" placeholder="コメントを入力" id="commentInput-${video.id}">
+    <button id="sendComment-${video.id}">送信</button>
+    <a href="#" onclick="openModal('${video.id}')" class="button">▶ 見る</a>
+  `;
+  videoGrid.appendChild(card);
 
-    // 🔥 メイン動画表示
-    const first = videosData[0];
-    document.getElementById("mainThumbnail").style.backgroundImage = `url('${first.thumbnail}')`;
-    document.getElementById("mainTitle").textContent = first.title;
-    document.getElementById("mainViews").textContent = `再生回数: ${first.views.toLocaleString()} 回`;
-    document.getElementById("mainWatch").href = `https://www.youtube.com/watch?v=${first.id}`;
+  // コメント送信
+  document.getElementById(`sendComment-${video.id}`).addEventListener("click", async ()=>{
+    const input = document.getElementById(`commentInput-${video.id}`);
+    const text = input.value.trim();
+    if(!text) return;
+    const colRef = collection(db,"comments",video.id,"items");
+    await addDoc(colRef,{name:userName,text:text,createdAt:serverTimestamp()});
+    input.value="";
+  });
 
-    // 初期表示は最新順
-    sortAndDisplayVideos("latest");
-}
-
-// ----------------- 並び替え＆表示 -----------------
-function sortAndDisplayVideos(type){
-    if(videosData.length===0) return;
-    let sorted = [...videosData];
-
-    if(type==="popular") sorted.sort((a,b)=>b.views-a.views);
-    else if(type==="latest") sorted.sort((a,b)=>b.publishedAt-b.publishedAt);
-    else if(type==="old") sorted.sort((a,b)=>a.publishedAt-b.publishedAt);
-
-    const grid = document.getElementById("videoGrid");
-    grid.innerHTML = "";
-
-    sorted.forEach(item=>{
-        grid.innerHTML += `
-        <div class="card">
-            <img src="${item.thumbnail}">
-            <h3>${item.title}</h3>
-            <p>再生回数: ${item.views.toLocaleString()} 回</p>
-            <a class="button" href="https://www.youtube.com/watch?v=${item.id}" target="_blank">▶ 見る</a>
-        </div>
-        `;
+  // リアルタイムコメント一覧
+  const colRef = collection(db,"comments",video.id,"items");
+  onSnapshot(colRef,snapshot=>{
+    const preview = document.getElementById(`commentsPreview-${video.id}`);
+    preview.innerHTML="";
+    snapshot.docs.slice(-3).forEach(doc=>{
+      const data = doc.data();
+      preview.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
     });
+  });
+});
+
+// モーダル再生
+const modal = document.getElementById("videoModal");
+const iframe = document.getElementById("modalIframe");
+const danmakuLayer = document.getElementById("danmakuLayer");
+const commentSection = document.getElementById("commentSection");
+const danmakuInput = document.getElementById("danmakuInput");
+const danmakuSend = document.getElementById("danmakuSend");
+
+window.openModal = function(videoId){
+  modal.style.display="flex";
+  iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1`;
+
+  // 弾幕コメント表示
+  const colRef = collection(db,"comments",videoId,"items");
+  onSnapshot(colRef,snapshot=>{
+    commentSection.innerHTML="";
+    snapshot.docChanges().forEach(change=>{
+      if(change.type==="added"){
+        const data = change.doc.data();
+        showDanmaku(`${data.name}: ${data.text}`);
+        commentSection.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
+      }
+    });
+  });
+
+  // 送信ボタン
+  danmakuSend.onclick = async ()=>{
+    const text = danmakuInput.value.trim();
+    if(!text) return;
+    const colRef = collection(db,"comments",videoId,"items");
+    await addDoc(colRef,{name:userName,text:text,createdAt:serverTimestamp()});
+    danmakuInput.value="";
+  };
+};
+
+// モーダル閉じる
+document.getElementById("closeModal").addEventListener("click", ()=>{
+  iframe.src="";
+  modal.style.display="none";
+  danmakuLayer.innerHTML="";
+});
+
+// 弾幕表示関数
+function showDanmaku(text){
+  const span = document.createElement("span");
+  span.className="danmaku";
+  span.textContent=text;
+  const y = Math.random()*(danmakuLayer.clientHeight-30);
+  span.style.top=y+"px";
+  span.style.left=danmakuLayer.clientWidth+"px";
+  danmakuLayer.appendChild(span);
+  const duration=8000+Math.random()*4000;
+  const start=performance.now();
+  function animate(time){
+    const elapsed = time-start;
+    const percent = elapsed/duration;
+    if(percent<1){
+      span.style.left=(danmakuLayer.clientWidth - percent*(danmakuLayer.clientWidth+span.clientWidth))+"px";
+      requestAnimationFrame(animate);
+    }else danmakuLayer.removeChild(span);
+  }
+  requestAnimationFrame(animate);
 }
 
-loadYouTube();
+// サイト内登録者数表示
+const siteSubRef = doc(db,"stats","siteSubscribers");
+onSnapshot(siteSubRef, doc=>{
+  if(doc.exists()) document.getElementById("siteSubscribers").textContent=doc.data().count;
+});
 </script>
-
 </body>
 </html>
