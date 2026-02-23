@@ -8,6 +8,15 @@
 <style>
 body{
     font-family:sans-serif;
+    background:#f9f9f9;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+}
+
+h1{
+    margin-bottom:20px;
 }
 
 .video-box{
@@ -17,6 +26,7 @@ body{
     border-radius:15px;
     max-width:600px;
     background:#fff;
+    width:100%;
 }
 
 .progress-bar{
@@ -43,6 +53,37 @@ body{
     background-position:center;
     transition:opacity 0.4s;
 }
+
+.card{
+    border:1px solid #ccc;
+    border-radius:10px;
+    padding:10px;
+    margin:10px;
+    background:#fff;
+    max-width:600px;
+}
+
+.card img{
+    width:100%;
+    border-radius:10px;
+}
+
+.card h3{
+    margin:10px 0 5px;
+}
+
+.card p{
+    margin:0 0 10px;
+}
+
+.card a{
+    display:inline-block;
+    padding:5px 10px;
+    background:red;
+    color:#fff;
+    border-radius:5px;
+    text-decoration:none;
+}
 </style>
 </head>
 
@@ -52,6 +93,9 @@ body{
 
 <div id="video"></div>
 
+<div id="videoGrid"></div>
+
+<!-- ダミーランダム更新用 -->
 <script>
 window.addEventListener("load", function(){
 
@@ -142,19 +186,22 @@ window.addEventListener("load", function(){
 
 });
 </script>
+
+<!-- YouTube API用 -->
 <script>
-const API_KEY = "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY";
+const API_KEY = "ここに新しいAPIキー"; // 🔑 新しいキーに置き換え
 const CHANNEL_ID = "UCmZY34Ev1I5FIcDC5tdXeDg";
 
 async function loadVideos(){
-
     const grid = document.getElementById("videoGrid");
 
     const searchUrl =
-    `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=3&type=video`;
+    `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=5&type=video`;
 
     const searchRes = await fetch(searchUrl);
     const searchData = await searchRes.json();
+
+    if(!searchData.items) return;
 
     const videoIds = searchData.items.map(v=>v.id.videoId).join(",");
 
@@ -171,7 +218,7 @@ async function loadVideos(){
         const videoId = item.id.videoId;
         const title = item.snippet.title;
         const thumbnail = item.snippet.thumbnails.high.url;
-        const views = statsData.items[index].statistics.viewCount;
+        const views = statsData.items[index]?.statistics.viewCount || "---";
 
         grid.innerHTML += `
         <div class="card">
@@ -179,6 +226,7 @@ async function loadVideos(){
             <h3>${title}</h3>
             <p>再生回数: ${Number(views).toLocaleString()} 回</p>
             <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">▶ 見る</a>
+            <a href="https://www.youtube.com/@%E3%83%AA%E3%83%A5%E3%82%A6%E3%83%86%E3%83%B3%E3%81%AEGame%E5%AE%9F%E6%B3%81" target="_blank" style="background:green;">🏠 チャンネルへ</a>
         </div>
         `;
     });
@@ -186,5 +234,6 @@ async function loadVideos(){
 
 loadVideos();
 </script>
+
 </body>
 </html>
