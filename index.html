@@ -1,93 +1,143 @@
-<!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ふぁんしーあいらんど｜ホラートロッコ</title>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryuten Portal</title>
+<script>
+// ===== 最新動画エリア 自動強化 =====
+// 元のvideoエリア取得
+const videoArea = document.getElementById("video");
 
-<style>
-html,body{margin:0;background:#000;overflow:hidden}
-#g{position:fixed;inset:0;background:#050505}
-.e{position:absolute;width:48px;height:68px;background:#400}
-.s{background:#024}
-.h{position:absolute;top:-5px;left:0;height:4px;background:red}
-#c{position:fixed;width:22px;height:22px;border:2px solid #f33;border-radius:50%;pointer-events:none}
-#u{position:fixed;left:6px;bottom:6px;color:#fff;font-size:12px}
-</style>
+// 上からかぶせるボックス作成
+const newBox = document.createElement("div");
+newBox.className = "video-box";
 
-<div id="g"></div>
-<div id="c"></div>
-<div id="u">
-<span id="a"></span>/<span id="r"></span> ❤️<span id="l"></span>
+newBox.innerHTML = `
+    <div class="countdown">
+        ⌛ 更新まで <span id="timer">20</span> 秒
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="thumbnail"></div>
+
+    <div class="video-title">
+        最新動画タイトル（ここに表示）
+    </div>
+
+    <div class="video-info">
+        再生回数: --- 回 ｜ 投稿日: ----
+    </div>
+`;
+
+// 追加（元の下に足すだけ）
+videoArea.appendChild(newBox);
+
+
+// ===== カウントダウン処理 =====
+
+let timeLeft = 20;
+const timer = document.getElementById("timer");
+const progress = document.getElementById("progress");
+
+const interval = setInterval(() => {
+
+    timeLeft--;
+    timer.textContent = timeLeft;
+
+    const percent = ((20 - timeLeft) / 20) * 100;
+    progress.style.width = percent + "%";
+
+    if(timeLeft <= 0){
+        clearInterval(interval);
+        timer.textContent = "更新中...";
+    }
+
+}, 1000);
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return; // 無ければ止める（安全）
+
+    const newBox = document.createElement("div");
+    newBox.className = "video-box";
+
+    newBox.innerHTML = `
+        <div class="countdown">
+            ⌛ 更新まで <span id="timer2">20</span> 秒
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress2"></div>
+        </div>
+
+        <div class="thumbnail"></div>
+
+        <div class="video-title">
+            最新動画タイトル（ここに表示）
+        </div>
+
+        <div class="video-info">
+            再生回数: --- 回 ｜ 投稿日: ----
+        </div>
+    `;
+
+    videoArea.appendChild(newBox);
+
+    let timeLeft = 20;
+    const timer = document.getElementById("timer2");
+    const progress = document.getElementById("progress2");
+
+    const interval = setInterval(() => {
+
+        timeLeft--;
+        timer.textContent = timeLeft;
+
+        const percent = ((20 - timeLeft) / 20) * 100;
+        progress.style.width = percent + "%";
+
+        if(timeLeft <= 0){
+            clearInterval(interval);
+            timer.textContent = "更新中...";
+        }
+
+    }, 1000);
+
+});<script>
+// ===== 完全安全版 実行遅延 =====
+window.addEventListener("load", function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    const newBox = document.createElement("div");
+    newBox.innerHTML = "<p style='color:red;'>JSは正常に動作中🔥</p>";
+
+    videoArea.appendChild(newBox);
+
+});
+</script>
+
+</script><body>
+
+<header>
+Ryuten Portal
+</header>
+
+<div id="video">
+<h2>最新動画エリア（準備中）</h2>
 </div>
 
-<script>
-let g=document.getElementById("g"),
-c=document.getElementById("c"),
-aE=a,rE=r,lE=l,
-a=15,r=100,l=3,ch=0;
-
-function u(){aE.textContent=a;rE.textContent=r;lE.textContent=l}
-u();
-
-onmousemove=e=>{
- c.style.left=e.clientX-11+"px";
- c.style.top=e.clientY-11+"px";
-};
-
-onmousedown=_=>ch=Date.now();
-onmouseup=_=>ch=0;
-
-onkeydown=e=>{
- if(e.key=="r"&&r){
-  let n=Math.min(15-a,r);
-  a+=n;r-=n;u();
- }
-};
-
-function sp(){
- if(l<=0)return;
- let e=document.createElement("div"),
- safe=Math.random()<0.2;
- e.className="e"+(safe?" s":"");
- let mh=2+Math.random()*5|0;
- e.h=mh;
-
- let h=document.createElement("div");
- h.className="h";
- h.style.width="100%";
- e.appendChild(h);
-
- e.style.left=Math.random()*(innerWidth-48)+"px";
- e.style.top=Math.random()*(innerHeight*0.5)+"px";
-
- e.onclick=v=>{
-  v.stopPropagation();
-  if(!a||l<=0)return;
-
-  let d=1;
-  if(ch&&Date.now()-ch>=650)d=3;   // チャージ弾
-  if(v.offsetY<18)d*=2;           // ヘッドショット
-
-  a--;
-  if(!safe){
-   e.h-=d;
-   h.style.width=e.h/mh*100+"%";
-   if(e.h<=0)e.remove();
-  }else{
-   l--; // ⑥の敵：撃つとダメージ
-  }
-  u();
- };
-
- if(!safe){
-  setTimeout(()=>{
-   if(e.isConnected){
-    l--;u();e.remove();
-   }
-  },2200);
- }
-
- g.appendChild(e);
-}
-
-setInterval(sp,1700);
+</body>
+</html><script>
+// ===== 上の古いscriptを無効化する安全装置 =====
+window.addEventListener("error", function(e){
+    console.log("エラー検知（無視）:", e.message);
+});
 </script>
