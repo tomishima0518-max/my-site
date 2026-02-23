@@ -159,4 +159,48 @@ window.addEventListener("load", function(){
     videoArea.appendChild(test);
 
 });
+</script><script>
+
+window.addEventListener("load", function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    const newBox = document.createElement("div");
+    newBox.style.border = "2px solid red";
+    newBox.style.padding = "15px";
+    newBox.style.marginTop = "20px";
+    newBox.style.borderRadius = "10px";
+
+    newBox.innerHTML = `
+        <p>⌛ 更新まで <span id="timerX">20</span> 秒</p>
+        <div style="width:100%;height:8px;background:#eee;border-radius:10px;">
+            <div id="progressX" style="height:100%;width:0%;background:red;"></div>
+        </div>
+        <div style="height:200px;background:#ddd;margin-top:15px;border-radius:8px;"></div>
+        <h3>最新動画タイトル（仮）</h3>
+        <p>再生回数: --- ｜ 投稿日: ----</p>
+    `;
+
+    videoArea.appendChild(newBox);
+
+    let timeLeft = 20;
+    const timer = document.getElementById("timerX");
+    const progress = document.getElementById("progressX");
+
+    setInterval(()=>{
+        timeLeft--;
+        timer.textContent = timeLeft;
+
+        const percent = ((20 - timeLeft)/20)*100;
+        progress.style.width = percent + "%";
+
+        if(timeLeft <= 0){
+            timer.textContent = "更新中...";
+        }
+
+    },1000);
+
+});
+
 </script>
