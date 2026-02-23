@@ -140,4 +140,23 @@ Ryuten Portal
 window.addEventListener("error", function(e){
     console.log("エラー検知（無視）:", e.message);
 });
+</script><script>
+// ===== 既存エラーを無視して続行させる =====
+window.onerror = function(){
+    return true;
+};
+</script><script>
+// ===== 確実実行版 =====
+window.addEventListener("load", function(){
+
+    const videoArea = document.getElementById("video");
+    if(!videoArea) return;
+
+    const test = document.createElement("p");
+    test.style.color = "red";
+    test.textContent = "JS再起動成功🔥";
+
+    videoArea.appendChild(test);
+
+});
 </script>
