@@ -219,4 +219,34 @@ window.addEventListener("load", function(){
     videoArea.appendChild(newBox);
 
 })();
+</script><script>
+// ===== ゲージ暴走防止パッチ =====
+(function(){
+
+    const timer = document.getElementById("timerX");
+    const progress = document.getElementById("progressX");
+
+    if(!timer || !progress) return;
+
+    let fixedTime = 20;
+
+    const fixedInterval = setInterval(()=>{
+
+        fixedTime--;
+
+        if(fixedTime <= 0){
+            fixedTime = 0;
+            progress.style.width = "100%";
+            timer.textContent = "更新完了🔥";
+            clearInterval(fixedInterval);
+            return;
+        }
+
+        timer.textContent = fixedTime;
+        const percent = ((20 - fixedTime)/20)*100;
+        progress.style.width = percent + "%";
+
+    },1000);
+
+})();
 </script>
