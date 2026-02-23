@@ -249,4 +249,37 @@ window.addEventListener("load", function(){
     },1000);
 
 })();
-</script>
+</script><script>
+// ===== すべての暴走ゲージを強制停止 =====
+(function(){
+
+    const progress = document.getElementById("progressX");
+    if(!progress) return;
+
+    let safeTime = 20;
+
+    const safeInterval = setInterval(()=>{
+
+        safeTime--;
+
+        if(safeTime <= 0){
+            safeTime = 0;
+            progress.style.width = "100%";
+            clearInterval(safeInterval);
+            return;
+        }
+
+        const percent = ((20 - safeTime)/20)*100;
+
+        // 🔥 100%を超えないように固定
+        progress.style.width = Math.min(percent,100) + "%";
+
+    },1000);
+
+})();
+</script><style>
+/* ===== ゲージが100%以上にならない強制制限 ===== */
+#progressX{
+    max-width:100%;
+}
+</style>
