@@ -4,25 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ryuten Portal</title>
-
 <style>
 body{ font-family:sans-serif; background:#222; color:#fff; margin:0; padding:0;}
-header{ display:flex; justify-content:center; background:#111; padding:10px;}
-header button{ margin:0 5px; padding:5px 15px; background:#444; color:#fff; border:none; cursor:pointer;}
+header, .innerTabs{ display:flex; justify-content:center; background:#111; padding:10px;}
+header button, .innerTabs button{ margin:0 5px; padding:5px 15px; background:#444; color:#fff; border:none; cursor:pointer;}
 .activeTab{ background:red;}
 #videoGrid{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:10px;}
 .card{ background:#333; border-radius:10px; padding:10px; width:250px; position:relative;}
 .card img{ width:100%; border-radius:10px;}
+.videoWrapper{ position:relative; width:800px; height:450px; margin:0 auto;}
 .danmakuLayer{ position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden;}
 .danmaku{ position:absolute; white-space:nowrap; color:#fff; font-weight:bold; text-shadow:1px 1px 2px #000;}
-#videoModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; flex-direction:column;}
+#videoModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; flex-direction:column; z-index:2000;}
 #videoModal iframe{ width:800px; height:450px; margin-bottom:10px;}
 #commentSection{ width:800px; max-height:150px; overflow-y:auto; background:#111; padding:10px; border-radius:5px;}
 #commentSection p{ margin:2px 0;}
-#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:1000;}
+#nameInputContainer{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:3000;}
 #nameInputContainer input{ padding:10px; font-size:16px; margin-bottom:10px; width:250px;}
-#nameInputContainer button{ padding:10px 20px; font-size:16px;}
+#nameInputContainer button{ padding:10px 20px; font-size:16px; cursor:pointer;}
 .channel-btn{ display:inline-block; padding:5px 10px; margin-top:5px; background:red; color:#fff; border:none; cursor:pointer; text-decoration:none;}
+.innerTabContent{ display:none; margin:10px;}
 </style>
 </head>
 <body>
@@ -42,10 +43,20 @@ header button{ margin:0 5px; padding:5px 15px; background:#444; color:#fff; bord
 
 <div id="contentArea">
   <div id="infoTab" class="tabContent">こんにちは！サイトへようこそ！</div>
-  <div id="videosTab" class="tabContent" style="display:none;">
-    <div id="videoGrid"></div>
+  
+  <div id="videosTab" class="tabContent">
+    <!-- 内部タブ -->
+    <div class="innerTabs">
+      <button class="innerTabBtn activeTab" data-inner="popular">人気順</button>
+      <button class="innerTabBtn" data-inner="latest">最新</button>
+      <button class="innerTabBtn" data-inner="oldest">古い</button>
+    </div>
+    <div id="popular" class="innerTabContent"></div>
+    <div id="latest" class="innerTabContent"></div>
+    <div id="oldest" class="innerTabContent"></div>
   </div>
-  <div id="otherTab" class="tabContent" style="display:none;">その他情報</div>
+
+  <div id="otherTab" class="tabContent">その他情報</div>
 </div>
 
 <!-- モーダル動画再生 -->
@@ -68,7 +79,7 @@ header button{ margin:0 5px; padding:5px 15px; background:#444; color:#fff; bord
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, updateDoc, onSnapshot, getDoc, addDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrywE11RwAJm5_MsUAkcZ_WQECJehcLRY",
@@ -81,134 +92,139 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
 let userName, userId;
 
-// 名前入力画面
+// 名前入力開始
 document.getElementById("startBtn").addEventListener("click", async ()=>{
-  const nameInput = document.getElementById("userNameInput").value.trim();
-  if(!nameInput) return alert("名前を入力してください");
-  userName = nameInput;
-  userId = crypto.randomUUID();
-
-  // Firestoreにユーザー追加
-  await setDoc(doc(db,"users",userId), {name:userName, subscribed:false, createdAt:serverTimestamp()});
-
+  const name = document.getElementById("userNameInput").value.trim();
+  if(!name) return alert("名前を入力してください");
+  userName=name;
+  userId=crypto.randomUUID();
+  await setDoc(doc(db,"users",userId),{name:userName,subscribed:false,createdAt:serverTimestamp()});
   document.getElementById("nameInputContainer").style.display="none";
 });
 
-// タブ切り替え
-const tabBtns = document.querySelectorAll(".tabBtn");
-tabBtns.forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    tabBtns.forEach(b=>b.classList.remove("activeTab"));
-    btn.classList.add("activeTab");
-    document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
-    document.getElementById(btn.dataset.tab+"Tab").style.display="block";
-  });
-});
+// メインタブ切り替え
+const tabBtns=document.querySelectorAll(".tabBtn");
+tabBtns.forEach(btn=>btn.addEventListener("click",()=>{
+  tabBtns.forEach(b=>b.classList.remove("activeTab"));
+  btn.classList.add("activeTab");
+  document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
+  document.getElementById(btn.dataset.tab+"Tab").style.display="block";
+}));
 
-// ダミー動画データ
-const videosData = [
-  {id:"d1", title:"🔥 Roblox DOORS 最速攻略！", thumbnail:"https://picsum.photos/250/140?random=1", views:1234, likes:456},
-  {id:"d2", title:"👀 トレンドニュース速報", thumbnail:"https://picsum.photos/250/140?random=2", views:2345, likes:123},
-  {id:"d3", title:"💥 神アップデート解説", thumbnail:"https://picsum.photos/250/140?random=3", views:3456, likes:789}
+// 内部タブ切替
+const innerBtns=document.querySelectorAll(".innerTabBtn");
+innerBtns.forEach(btn=>btn.addEventListener("click",()=>{
+  innerBtns.forEach(b=>b.classList.remove("activeTab"));
+  btn.classList.add("activeTab");
+  document.querySelectorAll(".innerTabContent").forEach(c=>c.style.display="none");
+  document.getElementById(btn.dataset.inner).style.display="block";
+}));
+
+// 動画データ
+const videosData=[
+  {id:"d1",title:"🔥 Roblox DOORS 最速攻略！",thumbnail:"https://picsum.photos/250/140?random=1",views:1234,likes:456},
+  {id:"d2",title:"👀 トレンドニュース速報",thumbnail:"https://picsum.photos/250/140?random=2",views:2345,likes:123},
+  {id:"d3",title:"💥 神アップデート解説",thumbnail:"https://picsum.photos/250/140?random=3",views:3456,likes:789}
 ];
 
-const videoGrid = document.getElementById("videoGrid");
+const categories=["popular","latest","oldest"];
+categories.forEach(cat=>{
+  const container=document.getElementById(cat);
+  videosData.forEach(video=>{
+    const card=document.createElement("div");
+    card.className="card";
+    card.innerHTML=`
+      <div class="videoWrapper">
+        <img src="${video.thumbnail}">
+        <div class="danmakuLayer" id="danmakuLayer-${video.id}"></div>
+      </div>
+      <h3>${video.title}</h3>
+      <p>再生回数: ${video.views} ｜ 👍 ${video.likes}</p>
+      <div id="commentsPreview-${video.id}"></div>
+      <input type="text" placeholder="コメントを入力" id="commentInput-${video.id}">
+      <button id="sendComment-${video.id}">送信</button>
+      <button onclick="openModal('${video.id}')">▶ 見る</button>
+    `;
+    container.appendChild(card);
 
-videosData.forEach(video=>{
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML=`
-    <img src="${video.thumbnail}">
-    <h3>${video.title}</h3>
-    <p>再生回数: ${video.views.toLocaleString()} 回 ｜ 👍 ${video.likes.toLocaleString()}</p>
-    <div id="commentsPreview-${video.id}"></div>
-    <input type="text" placeholder="コメントを入力" id="commentInput-${video.id}">
-    <button id="sendComment-${video.id}">送信</button>
-    <a href="#" onclick="openModal('${video.id}')" class="button">▶ 見る</a>
-  `;
-  videoGrid.appendChild(card);
+    // コメント送信
+    document.getElementById(`sendComment-${video.id}`).addEventListener("click", async()=>{
+      const input=document.getElementById(`commentInput-${video.id}`);
+      const text=input.value.trim();
+      if(!text) return;
+      const colRef=collection(db,"comments",video.id,"items");
+      await addDoc(colRef,{name:userName,text,createdAt:serverTimestamp()});
+      input.value="";
+    });
 
-  // コメント送信
-  document.getElementById(`sendComment-${video.id}`).addEventListener("click", async ()=>{
-    const input = document.getElementById(`commentInput-${video.id}`);
-    const text = input.value.trim();
-    if(!text) return;
-    const colRef = collection(db,"comments",video.id,"items");
-    await addDoc(colRef,{name:userName,text:text,createdAt:serverTimestamp()});
-    input.value="";
-  });
-
-  // リアルタイムコメント一覧
-  const colRef = collection(db,"comments",video.id,"items");
-  onSnapshot(colRef,snapshot=>{
-    const preview = document.getElementById(`commentsPreview-${video.id}`);
-    preview.innerHTML="";
-    snapshot.docs.slice(-3).forEach(doc=>{
-      const data = doc.data();
-      preview.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
+    // コメントリアルタイム表示（一覧）
+    const colRef=collection(db,"comments",video.id,"items");
+    onSnapshot(colRef,snapshot=>{
+      const preview=document.getElementById(`commentsPreview-${video.id}`);
+      preview.innerHTML="";
+      snapshot.docs.slice(-3).forEach(doc=>{
+        const data=doc.data();
+        preview.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
+      });
     });
   });
 });
 
 // モーダル再生
-const modal = document.getElementById("videoModal");
-const iframe = document.getElementById("modalIframe");
-const danmakuLayer = document.getElementById("danmakuLayer");
-const commentSection = document.getElementById("commentSection");
-const danmakuInput = document.getElementById("danmakuInput");
-const danmakuSend = document.getElementById("danmakuSend");
+const modal=document.getElementById("videoModal");
+const iframe=document.getElementById("modalIframe");
+const danmakuLayer=document.getElementById("danmakuLayer");
+const commentSection=document.getElementById("commentSection");
+const danmakuInput=document.getElementById("danmakuInput");
+const danmakuSend=document.getElementById("danmakuSend");
 
-window.openModal = function(videoId){
+window.openModal=async function(videoId){
   modal.style.display="flex";
   iframe.src=`https://www.youtube.com/embed/${videoId}?autoplay=1`;
 
-  // 弾幕コメント表示
-  const colRef = collection(db,"comments",videoId,"items");
+  // コメント表示
+  const colRef=collection(db,"comments",videoId,"items");
   onSnapshot(colRef,snapshot=>{
     commentSection.innerHTML="";
     snapshot.docChanges().forEach(change=>{
       if(change.type==="added"){
-        const data = change.doc.data();
+        const data=change.doc.data();
         showDanmaku(`${data.name}: ${data.text}`);
         commentSection.innerHTML+=`<p><b>${data.name}:</b> ${data.text}</p>`;
       }
     });
   });
 
-  // 送信ボタン
-  danmakuSend.onclick = async ()=>{
-    const text = danmakuInput.value.trim();
+  danmakuSend.onclick=async()=>{
+    const text=danmakuInput.value.trim();
     if(!text) return;
-    const colRef = collection(db,"comments",videoId,"items");
-    await addDoc(colRef,{name:userName,text:text,createdAt:serverTimestamp()});
+    await addDoc(colRef,{name:userName,text,createdAt:serverTimestamp()});
     danmakuInput.value="";
   };
 };
 
-// モーダル閉じる
-document.getElementById("closeModal").addEventListener("click", ()=>{
+document.getElementById("closeModal").addEventListener("click",()=>{
   iframe.src="";
   modal.style.display="none";
   danmakuLayer.innerHTML="";
 });
 
-// 弾幕表示関数
+// 弾幕関数
 function showDanmaku(text){
-  const span = document.createElement("span");
+  const span=document.createElement("span");
   span.className="danmaku";
   span.textContent=text;
-  const y = Math.random()*(danmakuLayer.clientHeight-30);
+  const y=Math.random()*(danmakuLayer.clientHeight-30);
   span.style.top=y+"px";
   span.style.left=danmakuLayer.clientWidth+"px";
   danmakuLayer.appendChild(span);
   const duration=8000+Math.random()*4000;
   const start=performance.now();
   function animate(time){
-    const elapsed = time-start;
-    const percent = elapsed/duration;
+    const elapsed=time-start;
+    const percent=elapsed/duration;
     if(percent<1){
       span.style.left=(danmakuLayer.clientWidth - percent*(danmakuLayer.clientWidth+span.clientWidth))+"px";
       requestAnimationFrame(animate);
@@ -216,12 +232,6 @@ function showDanmaku(text){
   }
   requestAnimationFrame(animate);
 }
-
-// サイト内登録者数表示
-const siteSubRef = doc(db,"stats","siteSubscribers");
-onSnapshot(siteSubRef, doc=>{
-  if(doc.exists()) document.getElementById("siteSubscribers").textContent=doc.data().count;
-});
 </script>
 </body>
 </html>
